@@ -18,10 +18,10 @@ for tev in tevs[:]:
         Path(destiny).mkdir(exist_ok=True, parents=True)
         os.system(f'rm {destiny}*.root')
 
-        for in_file in [f for f in sorted(glob.glob(origin + f'*.hepmc')) if 'pos' in f][:1]:
+        for in_file in [f for f in sorted(glob.glob(origin + f'*.hepmc')) if 'All' in f][:1]:
             #print(in_file)
             #continue
             out_file = in_file.replace('.hepmc','.root').replace(origin, destiny)
             os.system('cd /home/cristian/Programs/MG5_aMC_v2_9_2/Delphes && ./DelphesHepMC '
-                      f'{root}/Delphes_cards/delphes_card_LLHNscanV4.tcl {out_file} {in_file}')
+                      f'{root}/Delphes_cards/delphes_card_LLHNscanV4test.tcl {out_file} {in_file}')
             #print(zbns)

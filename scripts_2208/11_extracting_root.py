@@ -6,6 +6,7 @@ import glob
 import ROOT
 from pathlib import Path
 import numpy as np
+import itertools
 
 print('ROOT FIRST ATTEMPT:',ROOT.gSystem.Load("libDelphes"))
 #print('ROOT SECON ATTEMPT:',ROOT.gSystem.Load("libDelphes"))
@@ -14,8 +15,11 @@ print('EXRROT TREE READER:',ROOT.gInterpreter.Declare('#include "external/ExRoot
 
 types = ['ZH', "WH", "TTH"]
 tevs = [13]
+ph_stages = ['Initial','ECal','Isolation','CaloIsolation','Efficiency']
+stages = ['Initial','Tracking','Isolation','CaloIsolation','Efficiency']
+xleptons = ['Electron','Muon']
 
-for type in types[2:]:
+for type in types[:1]:
         for tev in tevs[:]:
 
             origin = f"./data/bins/{tev}/{type}/"
@@ -27,7 +31,7 @@ for type in types[2:]:
             for input_file in sorted(glob.glob(origin + f"*.root"))[:]:
 
                 out_file = input_file.replace('.root','_photons.pickle')
-
+                print(input_file)
                 # Create chain of root trees
                 chain = ROOT.TChain("Delphes")
                 chain.Add(input_file)
@@ -43,17 +47,47 @@ for type in types[2:]:
                 branchElectron = treeReader.UseBranch("Electron")
                 branchMuon = treeReader.UseBranch("Muon")
 
+                ##### TESTING BRANCHES
+                branchDict = {(l, stage): treeReader.UseBranch(stage + l) for l in xleptons for stage in stages}
+                for stage in ph_stages:
+                    branchDict[('Photon',stage)] = treeReader.UseBranch(stage + 'Photon')
+                stagesList = []
                 # Loop over all events
                 photons = []
                 jets = []
                 leptons = []
+                #print(branchDict)
                 print(f"\n{input_file}\nNumber of Entries: {numberOfEntries}")
                 for entry in range(numberOfEntries):
                     # Load selected branches with data from specified event
                     treeReader.ReadEntry(entry)
                     miss = met[0].MET
 
-                    #print(branchPhoton, branchElectron, branchMuon)
+                    valuesDict = {key: 0 for key in branchDict.keys()}
+                    #print(valuesDict)
+                    valuesDict['N'] = entry
+                    #print(valuesDict)
+
+                    for key, branch in branchDict.items():
+                        lep = key[0]
+                        stage = key[1]
+                        for e in branch:
+                            if lep == 'Electron' and e.PT > 10 and (abs(e.Eta) < 1.37 or 1.52 < abs(e.Eta) < 2.47):
+                                valuesDict[key] += 1
+                            elif lep == 'Muon' and e.PT > 10 and abs(e.Eta) < 2.7:
+                                valuesDict[key] += 1
+                            elif lep == 'Photon' and (abs(e.Eta) < 1.37 or 1.52 < abs(e.Eta) < 2.37):
+                                if stage == 'Initial':
+                                    if abs(e.PID) == 22 and e.PT > 10:
+                                        valuesDict[key] += 1
+                                elif stage == 'ECal':
+                                    if e.ET > 10:
+                                        valuesDict[key] += 1
+                                elif e.PT > 10:
+                                    valuesDict[key] += 1
+                    stagesList.append(valuesDict)
+                    #print(stagesList)
+                    #sys.exit()
                     for ph in branchPhoton:
                         #print(ph.PT, ph.Eta)
                         if ph.PT > 10 and (abs(ph.Eta) < 1.37 or 1.52 < abs(ph.Eta) < 2.37):
@@ -79,7 +113,12 @@ for type in types[2:]:
                             leptons.append({"N": entry, 'pdg': 13, "pt": mu.PT,
                                             "eta": mu.Eta, 'phi': mu.Phi, 'mass': 0.10566, 'MET': miss})
 
-                #input_file.close()
+
+                pre_df = pd.DataFrame(stagesList).set_index('N')
+                pre_df.columns = pd.MultiIndex.from_tuples(pre_df.columns)
+                print(pre_df)
+                pre_df.to_pickle(out_file.replace('_photons', '_DelphesCuts'))
+                #sys.exit()
 
                 df = pd.DataFrame(photons)
                 df_jets = pd.DataFrame(jets)
@@ -110,7 +149,7 @@ for type in types[2:]:
                 df_leps['id'] = g
                 df_leps = df_leps.set_index(['N', 'id'])
                 df_leps.to_pickle(out_file.replace('_photons', '_leptons'))
-                print(df_leps)
+                #print(df_leps)
 
                 if 'All' in input_file:
                     nbins = 50

@@ -28,14 +28,15 @@ tevs = [13]
 
 for tev in tevs[:]:
     mismatches = []
-    for type in types[:]:
+    for type in types[:1]:
         origin = f"./data/bins/{tev}/{type}/"
         destiny = f"./data/bins/{tev}/{type}/"
-        files_in = glob.glob(origin + f"*{type}*{tev}*photons.pickle")
+        files_in = glob.glob(origin + f"*{type}*{tev}*_photons.pickle")
+        print(files_in)
         bases = sorted(list(set([re.search(f'/.*({type}.+)-df', x).group(1) for x in files_in])))
         cutflows = dict()
 
-        for base_out in bases[:]:
+        for base_out in bases[:1]:
 
             destiny_info = f'./data/clean/'
             folder_txt = f"./cases/{tev}/{type}/"
@@ -45,10 +46,12 @@ for tev in tevs[:]:
 
             print(f'RUNNING: {base_out}')
 
-            for file_in in sorted(glob.glob(origin + f'*{base_out}*_photons.pickle'))[:]:
+            for file_in in sorted(glob.glob(origin + f'*{base_out}*All*_photons.pickle'))[:]:
                 photons = pd.read_pickle(file_in)
                 leptons = pd.read_pickle(file_in.replace('photons', 'leptons'))
                 jets = pd.read_pickle(file_in.replace('photons', 'jets'))
+                delphesCuts = pd.read_pickle(file_in.replace('photons', 'DelphesCuts'))
+
                 #print(photons)
 
                 ### ver cuales no cumplen con su label
@@ -65,15 +68,47 @@ for tev in tevs[:]:
 
                 ##### ADD Delphes to the cutflow
                 if 'All' in file_in:
-                    row_titles = []
-                    cutflow = []
-                    cutflow2 = pd.read_excel(cutflow_path + f'cutflow_{type}_part2.xlsx', sheet_name=base_out,
-                                             index_col=0)
-                    event_flow = len(np.intersect1d(photons.index.get_level_values(0),leptons.index.get_level_values(0)))
-                    row_titles.append('Delphes (leps and ph)')
+
+                    prev_cutflow = pd.read_excel(cutflow_path + f'cutflow_{type}_part2.xlsx', sheet_name=base_out,
+                                                 index_col=0)
+                    cutflow = prev_cutflow.to_dict(orient='records')
+                    row_titles = list(prev_cutflow.index)
+                    # First Photons
+                    for dlph_col, dlph_value in delphesCuts.loc[:,'Photon'].iteritems():
+                        row_titles.append('Dlph -  Photon ' + dlph_col)
+                        event_flow = dlph_value[dlph_value > 0].size
+                        cutflow.append({'# events': event_flow,
+                                        '% of total': 100 * event_flow / cutflow[0]['# events'],
+                                        '% of last': 100 * event_flow / cutflow[-1]['# events']})
+                    # Now, leptons
+                    delphesCuts = delphesCuts[dlph_value > 0]
+                    delphesCuts = delphesCuts.loc[:,['Electron','Muon']]
+                    # Because we are not using the Isolation modules with Muons....
+                    delphesCuts[('Muon','Isolation')] = delphesCuts[('Muon','Efficiency')]
+                    delphesCuts[('Muon', 'CaloIsolation')] = delphesCuts[('Muon','Efficiency')]
+                    dlphCutsLeps = delphesCuts.sum(level=1, axis=1)
+
+                    for dlph_col, dlph_value in dlphCutsLeps.iteritems():
+                        row_titles.append('Dlph -  Lepton ' + dlph_col)
+                        event_flow = dlph_value[dlph_value > 0].size
+                        cutflow.append({'# events': event_flow,
+                                        '% of total': 100 * event_flow / cutflow[0]['# events'],
+                                        '% of last': 100 * event_flow / cutflow[-1]['# events']})
+                    #print(row_titles)
+                    #print(cutflow)
+
+                ### Keeping only the events with leptons AND photons
+                leptons = leptons[leptons.index.get_level_values(0).isin(list(photons.index.get_level_values(0)))]
+
+                if 'All' in file_in:
+                    event_flow = leptons.index.get_level_values(0).unique().size
+                    #print(event_flow)
+                    #sys.exit()
+                    row_titles.append('Delphes Lepton/Photon')
                     cutflow.append({'# events': event_flow,
-                                    '% of total': 100 * event_flow / cutflow2.iloc[0]['# events'],
-                                    '% of last': 100 * event_flow / cutflow2.iloc[-1]['# events']})
+                                    '% of total': 100 * event_flow / prev_cutflow.iloc[0]['# events'],
+                                    '% of last': 100 * event_flow / cutflow[-1]['# events']})
+
 
                 ### Applying efficiencies
                 leptons.loc[(leptons.pdg==11),'eff_value'] = \
@@ -94,14 +129,23 @@ for tev in tevs[:]:
                         np.intersect1d(photons.index.get_level_values(0), leptons.index.get_level_values(0)))
                     row_titles.append('Lepton eff.')
                     cutflow.append({'# events': event_flow,
-                                    '% of total': 100 * event_flow / cutflow2.iloc[0]['# events'],
+                                    '% of total': 100 * event_flow / prev_cutflow.iloc[0]['# events'],
                                     '% of last': 100 * event_flow / cutflow[-1]['# events']})
 
+                #print(leptons.groupby('pdg').size())
                 ## Overlapping
 
                 ### Primero electrones
                 leptons.loc[(leptons.pdg==11),'el_iso_ph'] = isolation(leptons[leptons.pdg==11],photons,'pt',same=False,dR=0.4)
                 leptons = leptons[(leptons.pdg==13)|(leptons['el_iso_ph']==0)]
+
+                ##### ADDto  the cutflow
+                if 'All' in file_in:
+                    event_flow = leptons.index.get_level_values(0).unique().size
+                    row_titles.append('Overlap removal 1')
+                    cutflow.append({'# events': event_flow,
+                                    '% of total': 100 * event_flow / prev_cutflow.iloc[0]['# events'],
+                                    '% of last': 100 * event_flow / cutflow[-1]['# events']})
 
                 ## Luego jets
                 jets['jet_iso_ph'] = isolation(jets,photons,'pt',same=False,dR=0.4)
@@ -112,6 +156,13 @@ for tev in tevs[:]:
                 leptons.loc[(leptons.pdg == 11), 'el_iso_j'] = isolation(leptons[leptons.pdg == 11], jets, 'pt', same=False,
                                                                           dR=0.4)
                 leptons = leptons[(leptons.pdg == 13) | (leptons['el_iso_j'] == 0)]
+                ##### ADDto  the cutflow
+                if 'All' in file_in:
+                    event_flow = leptons.index.get_level_values(0).unique().size
+                    row_titles.append('Overlap removal 2')
+                    cutflow.append({'# events': event_flow,
+                                    '% of total': 100 * event_flow / prev_cutflow.iloc[0]['# events'],
+                                    '% of last': 100 * event_flow / cutflow[-1]['# events']})
 
                 ## Finalmente, muones
                 leptons.loc[(leptons.pdg == 13), 'mu_iso_j'] = isolation(leptons[leptons.pdg == 13], jets, 'pt', same=False,
@@ -119,14 +170,12 @@ for tev in tevs[:]:
                 leptons.loc[(leptons.pdg == 13), 'mu_iso_ph'] = isolation(leptons[leptons.pdg == 13], photons, 'pt', same=False,
                                                                          dR=0.4)
                 leptons = leptons[(leptons.pdg == 11) | ((leptons['mu_iso_j'] + leptons['mu_iso_ph']) == 0)]
-
                 ##### ADDto  the cutflow
                 if 'All' in file_in:
-                    event_flow = len(
-                        np.intersect1d(photons.index.get_level_values(0), leptons.index.get_level_values(0)))
-                    row_titles.append('Overlap removal')
+                    event_flow = leptons.index.get_level_values(0).unique().size
+                    row_titles.append('Overlap removal 3')
                     cutflow.append({'# events': event_flow,
-                                    '% of total': 100 * event_flow / cutflow2.iloc[0]['# events'],
+                                    '% of total': 100 * event_flow / prev_cutflow.iloc[0]['# events'],
                                     '% of last': 100 * event_flow / cutflow[-1]['# events']})
 
                 ##### De ahí leptones con pt > 27
@@ -135,11 +184,10 @@ for tev in tevs[:]:
 
                 ##### ADD to  the cutflow
                 if 'All' in file_in:
-                    event_flow = len(
-                        np.intersect1d(photons.index.get_level_values(0), leptons.index.get_level_values(0)))
+                    event_flow = leptons.index.get_level_values(0).unique().size
                     row_titles.append('lep pt > 27')
                     cutflow.append({'# events': event_flow,
-                                    '% of total': 100 * event_flow / cutflow2.iloc[0]['# events'],
+                                    '% of total': 100 * event_flow / prev_cutflow.iloc[0]['# events'],
                                     '% of last': 100 * event_flow / cutflow[-1]['# events']})
     
                 ### Invariant mass
@@ -154,38 +202,41 @@ for tev in tevs[:]:
                 leptons['py'] = leptons.pt * np.sin(leptons.phi)
                 leptons['pz'] = leptons.pt / np.tan(2 * np.arctan(np.exp(leptons.eta)))
                 leptons['E'] = np.sqrt(leptons.mass**2 + leptons.pt**2 + leptons.pz**2)
-                leptons = leptons[['E','px','py','pz']]
+                leptons = leptons[['E','px','py','pz','pdg']]
 
                 final_particles = photons.join(leptons,how='inner',lsuffix='_ph',rsuffix='_l')
                 final_particles['M_eg'] = np.sqrt((final_particles.E_ph + final_particles.E_l) ** 2 -
                                 ((final_particles.px_ph + final_particles.px_l) ** 2 +
                                  (final_particles.py_ph + final_particles.py_l) ** 2 +
                                  (final_particles.pz_ph + final_particles.pz_l) ** 2))
-                final_particles = final_particles[np.abs(final_particles.M_eg - m_Z) > 15]
-
+                #print(final_particles.groupby('pdg').size())
+                final_particles = final_particles[(final_particles.pdg==13)|(np.abs(final_particles.M_eg - m_Z) > 15)]
+                #print(final_particles.groupby('pdg').size())
                 ##### ADD to  the cutflow
                 if 'All' in file_in:
                     event_flow = len(final_particles)
                     row_titles.append('|M_eg - M_Z| > 15 GeV')
                     cutflow.append({'# events': event_flow,
-                                    '% of total': 100 * event_flow / cutflow2.iloc[0]['# events'],
+                                    '% of total': 100 * event_flow / prev_cutflow.iloc[0]['# events'],
                                     '% of last': 100 * event_flow / cutflow[-1]['# events']})
-                    cutflow3 = cutflow2.append(pd.DataFrame(cutflow, index=row_titles))
+                    cutflow3 = pd.DataFrame(cutflow, index=row_titles)
                     cutflows[base_out] = cutflow3
 
             stats = get_mass_width(base_out)
-            mismatches.append({'type':type, 'mass': stats['M'], 'width': stats['W'],
-                '1_total': mismatch_data['1_total'],
-                '1_to_2+': np.around(mismatch_data['1_to_2+']/mismatch_data['1_total'],4),
-                '2+_total': mismatch_data['2+_total'],
-                '2+_to_1': np.around(mismatch_data['2+_to_1']/mismatch_data['2+_total'],4)})
+
+            # mismatches.append({'type':type, 'mass': stats['M'], 'width': stats['W'],
+            #     '1_total': mismatch_data['1_total'],
+            #     '1_to_2+': np.around(mismatch_data['1_to_2+']/mismatch_data['1_total'],4),
+            #     '2+_total': mismatch_data['2+_total'],
+            #     '2+_to_1': np.around(mismatch_data['2+_to_1']/mismatch_data['2+_total'],4)})
 
             #print(mismatches)
             #sys.exit()
 
-        if len(cutflows) == len(bases):
+        if len(cutflows) == len(bases[:1]):
+            print('hey')
             with pd.ExcelWriter(cutflow_path + f'cutflow_{type}_part3.xlsx') as writer:
                 for base, cuts in cutflows.items():
                     cuts.to_excel(writer, sheet_name=base)
 
-    pd.DataFrame(mismatches).to_excel(cutflow_path + 'photon_df_mismataches.xlsx')
+    #pd.DataFrame(mismatches).to_excel(cutflow_path + 'photon_df_mismataches.xlsx')
