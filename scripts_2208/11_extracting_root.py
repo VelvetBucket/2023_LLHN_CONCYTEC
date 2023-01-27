@@ -19,7 +19,7 @@ ph_stages = ['Initial','ECal','Isolation','CaloIsolation','Efficiency']
 stages = ['Initial','Tracking','Isolation','CaloIsolation','Efficiency']
 xleptons = ['Electron','Muon']
 
-for type in types[:1]:
+for type in types[2:]:
         for tev in tevs[:]:
 
             origin = f"./data/bins/{tev}/{type}/"
@@ -113,11 +113,13 @@ for type in types[:1]:
                             leptons.append({"N": entry, 'pdg': 13, "pt": mu.PT,
                                             "eta": mu.Eta, 'phi': mu.Phi, 'mass': 0.10566, 'MET': miss})
 
+                chain.Clear()
 
-                pre_df = pd.DataFrame(stagesList).set_index('N')
-                pre_df.columns = pd.MultiIndex.from_tuples(pre_df.columns)
-                print(pre_df)
-                pre_df.to_pickle(out_file.replace('_photons', '_DelphesCuts'))
+                if len(stagesList) > 0:
+                    pre_df = pd.DataFrame(stagesList).set_index('N')
+                    pre_df.columns = pd.MultiIndex.from_tuples(pre_df.columns)
+                    print(pre_df)
+                    pre_df.to_pickle(out_file.replace('_photons', '_DelphesCuts'))
                 #sys.exit()
 
                 df = pd.DataFrame(photons)

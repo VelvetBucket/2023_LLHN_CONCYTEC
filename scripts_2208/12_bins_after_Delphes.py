@@ -28,7 +28,7 @@ tevs = [13]
 
 for tev in tevs[:]:
     mismatches = []
-    for type in types[:1]:
+    for type in types[:]:
         origin = f"./data/bins/{tev}/{type}/"
         destiny = f"./data/bins/{tev}/{type}/"
         files_in = glob.glob(origin + f"*{type}*{tev}*_photons.pickle")
@@ -36,7 +36,7 @@ for tev in tevs[:]:
         bases = sorted(list(set([re.search(f'/.*({type}.+)-df', x).group(1) for x in files_in])))
         cutflows = dict()
 
-        for base_out in bases[:1]:
+        for base_out in bases[:]:
 
             destiny_info = f'./data/clean/'
             folder_txt = f"./cases/{tev}/{type}/"
@@ -46,7 +46,7 @@ for tev in tevs[:]:
 
             print(f'RUNNING: {base_out}')
 
-            for file_in in sorted(glob.glob(origin + f'*{base_out}*All*_photons.pickle'))[:]:
+            for file_in in sorted(glob.glob(origin + f'*{base_out}*_photons.pickle'))[:]:
                 photons = pd.read_pickle(file_in)
                 leptons = pd.read_pickle(file_in.replace('photons', 'leptons'))
                 jets = pd.read_pickle(file_in.replace('photons', 'jets'))
@@ -109,7 +109,9 @@ for tev in tevs[:]:
                                     '% of total': 100 * event_flow / prev_cutflow.iloc[0]['# events'],
                                     '% of last': 100 * event_flow / cutflow[-1]['# events']})
 
-
+                if leptons.size == 0:
+                    continue
+                #sys.exit()
                 ### Applying efficiencies
                 leptons.loc[(leptons.pdg==11),'eff_value'] = \
                     leptons[leptons.pdg==11].apply(lambda row:
@@ -224,19 +226,18 @@ for tev in tevs[:]:
 
             stats = get_mass_width(base_out)
 
-            # mismatches.append({'type':type, 'mass': stats['M'], 'width': stats['W'],
-            #     '1_total': mismatch_data['1_total'],
-            #     '1_to_2+': np.around(mismatch_data['1_to_2+']/mismatch_data['1_total'],4),
-            #     '2+_total': mismatch_data['2+_total'],
-            #     '2+_to_1': np.around(mismatch_data['2+_to_1']/mismatch_data['2+_total'],4)})
+            mismatches.append({'type':type, 'mass': stats['M'], 'width': stats['W'],
+                '1_total': mismatch_data['1_total'],
+                '1_to_2+': np.around(mismatch_data['1_to_2+']/mismatch_data['1_total'],4),
+                '2+_total': mismatch_data['2+_total'],
+                '2+_to_1': np.around(mismatch_data['2+_to_1']/mismatch_data['2+_total'],4)})
 
             #print(mismatches)
             #sys.exit()
 
-        if len(cutflows) == len(bases[:1]):
-            print('hey')
-            with pd.ExcelWriter(cutflow_path + f'cutflow_{type}_part3.xlsx') as writer:
-                for base, cuts in cutflows.items():
-                    cuts.to_excel(writer, sheet_name=base)
+        print('hey')
+        with pd.ExcelWriter(cutflow_path + f'cutflow_{type}_part3.xlsx') as writer:
+            for base, cuts in cutflows.items():
+                cuts.to_excel(writer, sheet_name=base)
 
-    #pd.DataFrame(mismatches).to_excel(cutflow_path + 'photon_df_mismataches.xlsx')
+    pd.DataFrame(mismatches).to_excel(cutflow_path + 'photon_df_mismataches.xlsx')
