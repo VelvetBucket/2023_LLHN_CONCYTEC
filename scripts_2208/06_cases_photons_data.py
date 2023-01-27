@@ -28,7 +28,7 @@ def plot_config(figsize,xtitle,ytitle,xsize, ysize, xtsize, ytsize):
 def pipeline(detec_radius, detec_semilength, detec_name):
 
     mwpairs = set(re.search(f'({type}.+)\-', x).group(1) for x in
-                glob.glob(f'./data/clean/recollection_photons-{type}*{tev}-*.json'))
+                  glob.glob(f'./data_test/clean/recollection_leptons-{type}*.json'))
 
     for base_out in sorted(list(mwpairs))[:]:
 
@@ -49,7 +49,7 @@ def pipeline(detec_radius, detec_semilength, detec_name):
         counter = 0
         dicts = []
 
-        for file_in in sorted(glob.glob(f'./data/clean/recollection_photons-{base_out}-*.json'))[:]:
+        for file_in in sorted(glob.glob(f'./data_test/clean/recollection_photons-{base_out}-*.json'))[:]:
 
             print(file_in)
             try:
@@ -263,6 +263,6 @@ tevs = [13]
 for type in types[:]:
     for tev in tevs[:]:
 
-        destiny_info = './data/clean/'
+        destiny_info = './data_test/clean/'
 
         pipeline(ATLASdet_radius,ATLASdet_semilength,'ATLAS')

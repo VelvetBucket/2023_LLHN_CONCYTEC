@@ -19,16 +19,15 @@ active_r = (ATLAS_ECAL_r + active_ratio * (ATLAS_HCAL_r - ATLAS_ECAL_r)) * 1000 
 active_z = (ATLAS_ECAL_z + active_ratio * (ATLAS_HCAL_z - ATLAS_ECAL_z)) * 1000
 # print(active_z, active_r)
 
-destiny = "./data/clean/"
+destiny = "./data_test/clean/"
 types = ['ZH', "WH", "TTH"]
 tevs = [13]
 
 for type in types[:]:
     for tev in tevs[:]:
-        for file_in in sorted(glob.glob(f"./data/raw/run_{type}*{tev}.hepmc")):
-            # Programming Parameters
+        for file_in in sorted(glob.glob(f"./data_test/raw/{type}*.hepmc")):
 
-            base_out = re.search(f'({type}.+)\.', file_in).group(1)
+            base_out = re.search(f'({type}.+)\.hepmc', file_in).group(1)
             file_out = destiny + f'recollection_photons-{base_out}.json'
 
             it = 0

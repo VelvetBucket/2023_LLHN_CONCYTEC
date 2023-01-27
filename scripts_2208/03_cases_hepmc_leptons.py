@@ -4,8 +4,9 @@ import numpy as np
 from pathlib import Path
 import glob
 import re
+import sys
 
-destiny = "./data/clean/"
+destiny = "./data_test/clean/"
 types = ['ZH', "WH", "TTH"]
 tevs = [13]
 
@@ -16,9 +17,11 @@ cleptons = [11, 13]
 
 for type in types[:]:
     for tev in tevs[:]:
-        for file_in in sorted(glob.glob(f"./data/raw/run_{type}*{tev}.hepmc")):
+        for file_in in sorted(glob.glob(f"./data_test/raw/{type}*.hepmc")):
 
-            base_out = re.search(f'({type}.+)\.', file_in).group(1)
+            base_out = re.search(f'({type}.+)\.hepmc', file_in).group(1)
+            #print(base_out)
+            #sys.exit()
             file_out = destiny + "recollection_leptons-" + base_out + ".json"
             # Programming Parameters
 
