@@ -133,8 +133,7 @@ for tev in tevs[:]:
                     cutflow.append({'# events': event_flow,
                                     '% of total': 100 * event_flow / prev_cutflow.iloc[0]['# events'],
                                     '% of last': 100 * event_flow / cutflow[-1]['# events']})
-
-                #print(leptons.groupby('pdg').size())
+                    print(leptons.groupby('pdg').size())
                 ## Overlapping
 
                 ### Primero electrones
@@ -167,13 +166,19 @@ for tev in tevs[:]:
                                     '% of last': 100 * event_flow / cutflow[-1]['# events']})
 
                 ## Finalmente, muones
+                jets['jet_iso_mu'] = isolation(jets, leptons[leptons.pdg == 13], 'pt', same=False, dR=0.01)
+                jets = jets[jets['jet_iso_mu']== 0]
+
                 leptons.loc[(leptons.pdg == 13), 'mu_iso_j'] = isolation(leptons[leptons.pdg == 13], jets, 'pt', same=False,
                                                                          dR=0.4)
                 leptons.loc[(leptons.pdg == 13), 'mu_iso_ph'] = isolation(leptons[leptons.pdg == 13], photons, 'pt', same=False,
                                                                          dR=0.4)
                 leptons = leptons[(leptons.pdg == 11) | ((leptons['mu_iso_j'] + leptons['mu_iso_ph']) == 0)]
+
+                #sys.exit()
                 ##### ADDto  the cutflow
                 if 'All' in file_in:
+                    print(leptons.groupby('pdg').size())
                     event_flow = leptons.index.get_level_values(0).unique().size
                     row_titles.append('Overlap removal 3')
                     cutflow.append({'# events': event_flow,
