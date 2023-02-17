@@ -6,11 +6,8 @@ import glob
 import ROOT
 from pathlib import Path
 import numpy as np
-<<<<<<< HEAD
 import itertools
-=======
 import re
->>>>>>> master
 
 print('ROOT FIRST ATTEMPT:',ROOT.gSystem.Load("libDelphes"))
 #print('ROOT SECON ATTEMPT:',ROOT.gSystem.Load("libDelphes"))
@@ -149,7 +146,6 @@ for type in types[:1]:
                             leptons.append({"N": entry, 'pdg': 13, "pt": mu.PT,
                                             "eta": mu.Eta, 'phi': mu.Phi, 'mass': 0.10566, 'MET': miss})
 
-<<<<<<< HEAD
                 chain.Clear()
 
                 if len(stagesList) > 0:
@@ -158,10 +154,6 @@ for type in types[:1]:
                     print(pre_df)
                     pre_df.to_pickle(out_file.replace('_photons', '_DelphesCuts'))
                 #sys.exit()
-=======
-                #input_file.close()
-                chain.Clear()
->>>>>>> master
 
                 df = pd.DataFrame(photons)
                 df_jets = pd.DataFrame(jets)

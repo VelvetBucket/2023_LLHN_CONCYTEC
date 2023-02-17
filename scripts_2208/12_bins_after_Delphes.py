@@ -52,6 +52,7 @@ for tev in tevs[:]:
                 photons = pd.read_pickle(file_in)
                 leptons = pd.read_pickle(file_in.replace('photons', 'leptons'))
                 jets = pd.read_pickle(file_in.replace('photons', 'jets'))
+                delphesCuts = pd.read_pickle(file_in.replace('photons', 'DelphesCuts'))
                 #print(photons)
 
                 ##### ADD Delphes to the cutflow
@@ -122,7 +123,7 @@ for tev in tevs[:]:
                     cutflow.append({'# events': event_flow,
                                     '% of total': 100 * event_flow / prev_cutflow.iloc[0]['# events'],
                                     '% of last': 100 * event_flow / cutflow[-1]['# events']})
-                    print(leptons.groupby('pdg').size())
+                    #print(leptons.groupby('pdg').size())
 
                 ## Overlapping
                 ### Primero electrones
@@ -167,7 +168,7 @@ for tev in tevs[:]:
                 #sys.exit()
                 ##### ADDto  the cutflow
                 if 'All' in file_in:
-                    print(leptons.groupby('pdg').size())
+                    #print(leptons.groupby('pdg').size())
                     event_flow = leptons.index.get_level_values(0).unique().size
                     row_titles.append('Overlap removal 3')
                     cutflow.append({'# events': event_flow,

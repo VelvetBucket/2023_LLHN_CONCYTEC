@@ -215,7 +215,7 @@ for tev in tevs[:]:
                 phs_main["pt_ph"] = isolation(phs_main, phs_surr, "pt", True)
                 phs_main["pt_e"] = isolation(phs_main, df_leps[np.abs(df_leps.pdg) == 11], "pt")
 
-                #phs_main = phs_main[(phs_main["pt_ph"] + phs_main["pt_e"]) < 0.065 * phs_main.pt]
+                phs_main = phs_main[(phs_main["pt_ph"] + phs_main["pt_e"]) < 0.065 * phs_main.pt]
 
                 evflows = len(phs_main.index.get_level_values(0).unique())
                 row_titles.append('caloisolation')
@@ -270,7 +270,7 @@ for tev in tevs[:]:
                                 '% of last': 100 * evflows / cutflow[-1]['# events']})
 
                 ### Apply efficiency dependent ofz_origin
-                #df['detected'] = True
+                df['detected'] = True
                 df['detected'] = \
                     df.apply(lambda row: np.random.random_sample() < zo_eff(row['zo_smeared']), axis=1)
                 #print(df[['zo_smeared','detected']])
