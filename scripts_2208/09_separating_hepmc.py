@@ -5,10 +5,15 @@ import pandas as pd
 import sys
 import glob
 import re
+import os
 
+destiny_base = './data/bins'
 channels = ['1','2+']
 types = ['ZH', "WH", "TTH"]
 tevs = [13]
+
+#os.system(f'find . -name \*.hepmc -type f -delete')
+os.system(f'cd {destiny_base} && find . -name \*.hepmc -type f -delete')
 
 for tev in tevs[:]:
     for type in types[:]:
@@ -17,7 +22,8 @@ for tev in tevs[:]:
             base_out = re.search(f'({type}.+)\.', file_in).group(1)
             # Programming Parameters
 
-            destiny = f"./data/bins/{tev}/{type}/"
+            destiny = f"{destiny_base}/{tev}/{type}/"
+
             dfs = {key: {'pos':'', 'neg':''} for key in channels}
             pretext = []
 
@@ -48,8 +54,8 @@ for tev in tevs[:]:
 
             for key, predf in dfs.items():
                 for tsign, df_ in predf.items():
-                    for zb in range(min(df_.z_binned),max(df_.z_binned)+1):
-                        for tb in range(min(df_.t_binned), max(df_.t_binned) + 1):
+                    for zb in range(min(df_.z_binned, default=1),max(df_.z_binned, default=0)+1):
+                        for tb in range(min(df_.t_binned, default=1), max(df_.t_binned, default=0) + 1):
                             output = destiny + f'subrun_{base_out}-df{key}_z{zb}_t{tb}_{tsign}.hepmc'
                             #print(output)
                             file = open(output,'w')
@@ -82,6 +88,7 @@ for tev in tevs[:]:
                                 file = open(destiny + f'subrun_{base_out}-df{key}_z{zbn}_t{tbn}_{tlabel}.hepmc','a')
                             #print(f'{key} z{zbn} t{tbn}')
                     it += 1
+
                 if zbn > 0 and tbn > 0 :
                     file.write(sentence)
                     if tlabel == 'pos':
