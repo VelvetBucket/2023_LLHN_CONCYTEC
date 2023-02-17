@@ -7,7 +7,7 @@ import re
 import glob
 from my_funcs import my_arctan
 from scipy.interpolate import interp1d
-from my_funcs import get_mass_width
+from my_funcs import get_mass_width, isolation
 
 points = pd.read_csv(f'./data/z0_res_points.csv', delimiter=',', header=None).values
 linear = interp1d(points[:, 0], points[:, 1])
@@ -212,15 +212,21 @@ for tev in tevs[:]:
                 #### THen, keep thr pbservables ofonly the objects that are in Delta R < 0.2 of photon objects
                 df = phs_main.copy()
                 ##### First, the energy of electron and photons
-                phs_main = isolation(phs_main, phs_surr, "pt", "pt_ph", True)
-                phs_main = isolation(phs_main, df_leps[np.abs(df_leps.pdg) == 11], "pt", "pt_e")
+                phs_main["pt_ph"] = isolation(phs_main, phs_surr, "pt", True)
+                phs_main["pt_e"] = isolation(phs_main, df_leps[np.abs(df_leps.pdg) == 11], "pt")
 
-                phs_main = phs_main[(phs_main["pt_ph"] + phs_main["pt_e"]) < 0.065 * phs_main.pt]
+                #phs_main = phs_main[(phs_main["pt_ph"] + phs_main["pt_e"]) < 0.065 * phs_main.pt]
+
+                evflows = len(phs_main.index.get_level_values(0).unique())
+                row_titles.append('caloisolation')
+                cutflow.append({'# events': evflows,
+                                '% of total': 100 * evflows / cutflow[0]['# events'],
+                                '% of last': 100 * evflows / cutflow[-1]['# events']})
 
                 ##### Then, the pt of leptons and jets
                 df_leps = df_leps[df_leps.pt > 1]
-                phs_main = isolation(phs_main, df_jets, "pt", "pt_j")
-                phs_main = isolation(phs_main, df_leps, "pt", "pt_l")
+                phs_main["pt_j"] = isolation(phs_main, df_jets, "pt")
+                phs_main["pt_l"] = isolation(phs_main, df_leps, "pt")
 
                 phs_main = phs_main[(phs_main["pt_j"] + phs_main["pt_l"]) < 0.05 * phs_main.pt]
 
@@ -230,73 +236,6 @@ for tev in tevs[:]:
                                 '% of total': 100 * evflows / cutflow[0]['# events'],
                                 '% of last': 100 * evflows / cutflow[-1]['# events']})
 
-                '''
-                ######## Min(|DELTA R|)  > 0.2
-                # First, between photons
-                df["dr_ph"] = 100.0
-                for ix in df.index.get_level_values(0).unique()[:]:
-                    event = df.loc[ix]
-                    for index1, row1 in event.iterrows():
-                        drs = []
-                        event_ph = phs_surr.loc[ix]
-                        for index2, row2 in event_ph.iterrows():
-                            if index1 != index2:
-                                drs.append(np.sqrt((row2.phi - row1.phi)**2 + (row2.eta - row1.eta)**2))
-                        if len(drs) != 0:
-                            df.at[(ix,index1),'dr_ph'] = min(drs)
-    
-                df = df[df['dr_ph'] > 0.2]
-    
-                # Then, jets
-                #df_jets = df_jets.loc[df.index.get_level_values(0).unique()]
-    
-                df["dr_jets"] = 100.0
-                for ix in df.index.get_level_values(0).unique()[:]:
-                    event_ph = df.loc[ix]
-                    # print(ix)
-                    try:
-                        event_jets = df_jets.loc[ix]
-                        for index_ph, row_ph in event_ph.iterrows():
-                            drs = []
-                            # print(index1)
-                            for index_j, row_j in event_jets.iterrows():
-                                drs.append(np.sqrt((row_j.phi - row_ph.phi) ** 2 + (row_j.eta - row_ph.eta) ** 2))
-                            #print(drs)
-                            df.at[(ix, index_ph), 'dr_jets'] = min(drs)
-                    except KeyError:
-                        continue
-    
-                #print(df_jets.loc[3])
-                df = df[df['dr_jets'] > 0.2]
-                #print(df['dr_jets'])
-    
-                # Finally, leptons
-                #df_leps = \
-                #        df_leps.loc[
-                #            df.index.get_level_values(0).unique().intersection(df_leps.index.get_level_values(0).unique())
-                #        ]
-                #print(df_leps)
-    
-                df["dr_lep"] = 100.0
-                for ix in df.index.get_level_values(0).unique()[:]:
-                    event_ph = df.loc[ix]
-                    #print(ix)
-                    try:
-                        event_lep = df_leps.loc[ix]
-                        for index_ph, row_ph in event_ph.iterrows():
-                            drs = []
-                            # print(index1)
-                            for index_l, row_l in event_lep.iterrows():
-                                drs.append(np.sqrt((row_l.phi - row_ph.phi) ** 2 + (row_l.eta - row_ph.eta) ** 2))
-                            # print(drs)
-                            df.at[(ix, index_ph), 'dr_lep'] = min(drs)
-                    except KeyError:
-                        continue
-    
-                df = df[df['dr_lep'] > 0.2]
-                #print(df['dr_lep'])
-                print(df.shape)
-                '''
                 df = phs_main.copy()
 
                 ########## z_origin
@@ -331,6 +270,7 @@ for tev in tevs[:]:
                                 '% of last': 100 * evflows / cutflow[-1]['# events']})
 
                 ### Apply efficiency dependent ofz_origin
+                #df['detected'] = True
                 df['detected'] = \
                     df.apply(lambda row: np.random.random_sample() < zo_eff(row['zo_smeared']), axis=1)
                 #print(df[['zo_smeared','detected']])

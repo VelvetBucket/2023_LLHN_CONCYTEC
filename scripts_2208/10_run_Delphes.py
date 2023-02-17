@@ -5,20 +5,23 @@ import os
 import glob
 import re
 
+destiny_base = './data/bins'
 types = ['ZH', "WH", "TTH"]
 tevs = [13]
 
+os.system(f'cd {destiny_base} && find . -name \*.pickle -type f -delete')
+os.system(f'cd {destiny_base} && find . -name \*.root -type f -delete')
+
 for tev in tevs[:]:
-    for type in types[:1]:
+    for type in types[:]:
 
         root = "/home/cristian/Desktop/HEP_Jones/paper_2023"
         origin = root + f"/scripts_2208/data/bins/{tev}/{type}/"
         destiny = root + f"/scripts_2208/data/bins/{tev}/{type}/"
 
         Path(destiny).mkdir(exist_ok=True, parents=True)
-        os.system(f'rm {destiny}*.root')
 
-        for in_file in [f for f in sorted(glob.glob(origin + f'*.hepmc')) if 'pos' in f][:1]:
+        for in_file in [f for f in sorted(glob.glob(origin + f'*.hepmc')) if 'pos' in f][:]:
             #print(in_file)
             #continue
             out_file = in_file.replace('.hepmc','.root').replace(origin, destiny)

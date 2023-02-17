@@ -27,7 +27,8 @@ types = ['ZH', "WH", "TTH"]
 tevs = [13]
 
 for tev in tevs[:]:
-    mismatches = []
+    mismatches1 = []
+    mismatches2 = []
     for type in types[:]:
         origin = f"./data/bins/{tev}/{type}/"
         destiny = f"./data/bins/{tev}/{type}/"
@@ -39,41 +40,21 @@ for tev in tevs[:]:
 
             destiny_info = f'./data/clean/'
             folder_txt = f"./cases/{tev}/{type}/"
-            mismatch_data = {'1_total': 0, '1_to_2+': 0,'2+_total': 0, '2+_to_1': 0}
+            mismatch_data = {'1_total': 0, '1_to_2+': 0,'2+_total': 0, '2+_to_1': 0,
+                             '1_to_2+-survived': 0, '2+_to_1-survived': 0}
             dfs = {'1': '','2+': ''}
             scale = 1.
 
             print(f'RUNNING: {base_out}')
 
-            for file_in in sorted(glob.glob(origin + f'*{base_out}*_photons.pickle'))[:]:
-                photons = pd.read_pickle(file_in)
-                leptons = pd.read_pickle(file_in.replace('photons', 'leptons'))
-                jets = pd.read_pickle(file_in.replace('photons', 'jets'))
+            for input_file in sorted(glob.glob(origin + f'*{base_out}*_photons.pickle'))[:]:
+                photons = pd.read_pickle(input_file)
+                leptons = pd.read_pickle(input_file.replace('photons', 'leptons'))
+                jets = pd.read_pickle(input_file.replace('photons', 'jets'))
                 #print(photons)
 
-                ### ver cuales no cumplen con su label
-                if 'df1' in file_in:
-                    nums = photons.groupby(['N']).size()
-                    mismatch_data['1_total'] += nums.size
-                    mismatch_data['1_to_2+'] += nums[nums > 1].size
-                elif 'df2+' in file_in:
-                    nums = photons.groupby(['N']).size()
-                    mismatch_data['2+_total'] += nums.size
-                    mismatch_data['2+_to_1'] += nums[nums == 1].size
-
-                #print(mismatch_data)
-
-                ##### ADD Delphes to the cutflow
-                if 'All' in file_in:
-                    row_titles = []
-                    cutflow = []
-                    cutflow2 = pd.read_excel(cutflow_path + f'cutflow_{type}_part2.xlsx', sheet_name=base_out,
-                                             index_col=0)
-                    event_flow = len(np.intersect1d(photons.index.get_level_values(0),leptons.index.get_level_values(0)))
-                    row_titles.append('Delphes (leps and ph)')
-                    cutflow.append({'# events': event_flow,
-                                    '% of total': 100 * event_flow / cutflow2.iloc[0]['# events'],
-                                    '% of last': 100 * event_flow / cutflow2.iloc[-1]['# events']})
+                if leptons.size == 0:
+                    continue
 
                 ### Applying efficiencies
                 leptons.loc[(leptons.pdg==11),'eff_value'] = \
@@ -88,17 +69,7 @@ for tev in tevs[:]:
                 leptons = leptons[leptons.detected]
                 #print(leptons)
 
-                ##### ADDto  the cutflow
-                if 'All' in file_in:
-                    event_flow = len(
-                        np.intersect1d(photons.index.get_level_values(0), leptons.index.get_level_values(0)))
-                    row_titles.append('Lepton eff.')
-                    cutflow.append({'# events': event_flow,
-                                    '% of total': 100 * event_flow / cutflow2.iloc[0]['# events'],
-                                    '% of last': 100 * event_flow / cutflow[-1]['# events']})
-
                 ## Overlapping
-
                 ### Primero electrones
                 leptons.loc[(leptons.pdg==11),'el_iso_ph'] = isolation(leptons[leptons.pdg==11],photons,'pt',same=False,dR=0.4)
                 leptons = leptons[(leptons.pdg==13)|(leptons['el_iso_ph']==0)]
@@ -114,78 +85,102 @@ for tev in tevs[:]:
                 leptons = leptons[(leptons.pdg == 13) | (leptons['el_iso_j'] == 0)]
 
                 ## Finalmente, muones
+                jets['jet_iso_mu'] = isolation(jets, leptons[leptons.pdg == 13], 'pt', same=False, dR=0.01)
+                jets = jets[jets['jet_iso_mu'] == 0]
+
                 leptons.loc[(leptons.pdg == 13), 'mu_iso_j'] = isolation(leptons[leptons.pdg == 13], jets, 'pt', same=False,
                                                                          dR=0.4)
                 leptons.loc[(leptons.pdg == 13), 'mu_iso_ph'] = isolation(leptons[leptons.pdg == 13], photons, 'pt', same=False,
                                                                          dR=0.4)
                 leptons = leptons[(leptons.pdg == 11) | ((leptons['mu_iso_j'] + leptons['mu_iso_ph']) == 0)]
 
-                ##### ADDto  the cutflow
-                if 'All' in file_in:
-                    event_flow = len(
-                        np.intersect1d(photons.index.get_level_values(0), leptons.index.get_level_values(0)))
-                    row_titles.append('Overlap removal')
-                    cutflow.append({'# events': event_flow,
-                                    '% of total': 100 * event_flow / cutflow2.iloc[0]['# events'],
-                                    '% of last': 100 * event_flow / cutflow[-1]['# events']})
-
                 ##### De ahí leptones con pt > 27
                 leptons = leptons[leptons.pt > 27]
                 #print(leptons)
 
-                ##### ADD to  the cutflow
-                if 'All' in file_in:
-                    event_flow = len(
-                        np.intersect1d(photons.index.get_level_values(0), leptons.index.get_level_values(0)))
-                    row_titles.append('lep pt > 27')
-                    cutflow.append({'# events': event_flow,
-                                    '% of total': 100 * event_flow / cutflow2.iloc[0]['# events'],
-                                    '% of last': 100 * event_flow / cutflow[-1]['# events']})
-    
                 ### Invariant mass
-                photons = photons.groupby(['N']).nth(0)
-                photons['px'] = photons.pt * np.cos(photons.phi)
-                photons['py'] = photons.pt * np.sin(photons.phi)
-                photons['pz'] = photons.pt / np.tan(2 * np.arctan(np.exp(photons.eta)))
-                photons = photons[['E', 'px', 'py', 'pz']]
+                photons0 = photons.groupby(['N']).nth(0)
+                photons0['px'] = photons0.pt * np.cos(photons0.phi)
+                photons0['py'] = photons0.pt * np.sin(photons0.phi)
+                photons0['pz'] = photons0.pt / np.tan(2 * np.arctan(np.exp(photons0.eta)))
+                photons0 = photons0[['E', 'px', 'py', 'pz']]
 
-                leptons = leptons.groupby(['N']).nth(0)
-                leptons['px'] = leptons.pt * np.cos(leptons.phi)
-                leptons['py'] = leptons.pt * np.sin(leptons.phi)
-                leptons['pz'] = leptons.pt / np.tan(2 * np.arctan(np.exp(leptons.eta)))
-                leptons['E'] = np.sqrt(leptons.mass**2 + leptons.pt**2 + leptons.pz**2)
-                leptons = leptons[['E','px','py','pz']]
+                leptons0 = leptons.groupby(['N']).nth(0)
+                leptons0['px'] = leptons0.pt * np.cos(leptons0.phi)
+                leptons0['py'] = leptons0.pt * np.sin(leptons0.phi)
+                leptons0['pz'] = leptons0.pt / np.tan(2 * np.arctan(np.exp(leptons0.eta)))
+                leptons0['E'] = np.sqrt(leptons0.mass**2 + leptons0.pt**2 + leptons0.pz**2)
+                leptons0 = leptons0[['E','px','py','pz','pdg']]
 
-                final_particles = photons.join(leptons,how='inner',lsuffix='_ph',rsuffix='_l')
+                final_particles = photons0.join(leptons0,how='inner',lsuffix='_ph',rsuffix='_l')
                 final_particles['M_eg'] = np.sqrt((final_particles.E_ph + final_particles.E_l) ** 2 -
                                 ((final_particles.px_ph + final_particles.px_l) ** 2 +
                                  (final_particles.py_ph + final_particles.py_l) ** 2 +
                                  (final_particles.pz_ph + final_particles.pz_l) ** 2))
-                final_particles = final_particles[np.abs(final_particles.M_eg - m_Z) > 15]
+                final_particles = final_particles[(final_particles.pdg == 13) | (np.abs(final_particles.M_eg - m_Z) > 15)]
+                #print(len(photons))
+                if 'All' not in input_file:
+                    photons = photons[photons.index.get_level_values(0).isin(
+                        list(final_particles.index.get_level_values(0)))]
 
-                ##### ADD to  the cutflow
-                if 'All' in file_in:
-                    event_flow = len(final_particles)
-                    row_titles.append('|M_eg - M_Z| > 15 GeV')
-                    cutflow.append({'# events': event_flow,
-                                    '% of total': 100 * event_flow / cutflow2.iloc[0]['# events'],
-                                    '% of last': 100 * event_flow / cutflow[-1]['# events']})
-                    cutflow3 = cutflow2.append(pd.DataFrame(cutflow, index=row_titles))
-                    cutflows[base_out] = cutflow3
+                    name_base = re.search(f'/.*({type}.+)-df', input_file).group(1)
+                    dataset = re.search(f'/.*df(.+?)_', input_file).group(1)
+                    tsign = re.search(f'/.*_(.+?)_photons', input_file).group(1)
+                    z = re.search(f'/.*_z(.+?)_', input_file).group(1)
+                    t = re.search(f'/.*_t(.+?)_', input_file).group(1)
+                    preDelphes_file = f'./data/clean/df_photon_smeared_{dataset}-{name_base}_{tsign}.pickle'
+                    preDelphes = pd.read_pickle(preDelphes_file)
+                    preDelphes = preDelphes[(preDelphes.z_binned == int(z)) & (preDelphes.t_binned == int(t))]
+                    preDelphes = preDelphes.groupby(['Event']).nth(0)
+
+
+                    ### ver cuales no cumplen con su label
+                    if 'df1' in input_file:
+                        nums = photons.groupby(['N']).size()
+                        mismatch_data['1_total'] += nums.shape[0]
+                        mismatch_data['1_to_2+'] += nums[nums > 1].shape[0]
+                        #if nums[nums > 1].shape[0] == 0:
+                        #    continue
+                        outliers = photons.groupby(['N']).nth(0)[nums > 1]
+                        outliers = outliers[['pt']].join(preDelphes[['pt']], how='inner', lsuffix='_AD', rsuffix='_BD')
+                        outliers = outliers[np.isclose(outliers.pt_AD,outliers.pt_BD,rtol=0.1,atol=0.)]
+                        #print(outliers.shape[0])
+                        mismatch_data['1_to_2+-survived'] += outliers.shape[0]
+                    elif 'df2+' in input_file:
+                        nums = photons.groupby(['N']).size()
+                        mismatch_data['2+_total'] += nums.shape[0]
+                        mismatch_data['2+_to_1'] += nums[nums == 1].shape[0]
+                        #if nums[nums == 1].shape[0] == 0:
+                        #    continue
+                        outliers = photons.groupby(['N']).nth(0)[nums == 1]
+                        outliers = outliers[['pt']].join(preDelphes[['pt']], how='inner', lsuffix='_AD', rsuffix='_BD')
+                        outliers = outliers[np.isclose(outliers.pt_AD,outliers.pt_BD,rtol=0.1,atol=0.)]
+                        #print(outliers.shape[0])
+                        mismatch_data['2+_to_1-survived'] += outliers.shape[0]
+                    #print()
+                    #print(len(photons))
+                    #sys.exit()
 
             stats = get_mass_width(base_out)
-            mismatches.append({'type':type, 'mass': stats['M'], 'width': stats['W'],
+            mismatches1.append({'type':type, 'mass': stats['M'], 'width': stats['W'],
                 '1_total': mismatch_data['1_total'],
-                '1_to_2+': np.around(mismatch_data['1_to_2+']/mismatch_data['1_total'],4),
-                '2+_total': mismatch_data['2+_total'],
-                '2+_to_1': np.around(mismatch_data['2+_to_1']/mismatch_data['2+_total'],4)})
+                '1_to_2+_%': np.around(100*mismatch_data['1_to_2+']/mismatch_data['1_total'],2),
+                '1_to_2+': mismatch_data['1_to_2+'],
+                '1_to_2+_survived_%': np.around(100 * np.divide(mismatch_data['1_to_2+-survived'],mismatch_data['1_to_2+']), 2),
+                '1_to_2+_survived': mismatch_data['1_to_2+-survived']})
+
+            mismatches2.append({'type': type, 'mass': stats['M'], 'width': stats['W'],
+                                '2+_total': mismatch_data['2+_total'],
+                                '2+_to_1_%': np.around(100 * mismatch_data['2+_to_1'] / mismatch_data['2+_total'], 2),
+                                '2+_to_1': mismatch_data['2+_to_1'],
+                                '2+_to_1_survived_%': np.around(
+                                    100 * np.divide(mismatch_data['2+_to_1-survived'], mismatch_data['2+_to_1']), 2),
+                                '2+_to_1_survived': mismatch_data['2+_to_1-survived']})
 
             #print(mismatches)
             #sys.exit()
 
-        if len(cutflows) == len(bases):
-            with pd.ExcelWriter(cutflow_path + f'cutflow_{type}_part3.xlsx') as writer:
-                for base, cuts in cutflows.items():
-                    cuts.to_excel(writer, sheet_name=base)
+    with pd.ExcelWriter(cutflow_path + 'photon_df_mismataches.xlsx') as writer:
+        pd.DataFrame(mismatches1).to_excel(writer, sheet_name="1 to 2+")
+        pd.DataFrame(mismatches2).to_excel(writer, sheet_name="2+ to 1")
 
-    pd.DataFrame(mismatches).to_excel(cutflow_path + 'photon_df_mismataches.xlsx')

@@ -6,6 +6,7 @@ import glob
 import ROOT
 from pathlib import Path
 import numpy as np
+import re
 
 print('ROOT FIRST ATTEMPT:',ROOT.gSystem.Load("libDelphes"))
 #print('ROOT SECON ATTEMPT:',ROOT.gSystem.Load("libDelphes"))
@@ -15,7 +16,7 @@ print('EXRROT TREE READER:',ROOT.gInterpreter.Declare('#include "external/ExRoot
 types = ['ZH', "WH", "TTH"]
 tevs = [13]
 
-for type in types[2:]:
+for type in types[:1]:
         for tev in tevs[:]:
 
             origin = f"./data/bins/{tev}/{type}/"
@@ -24,18 +25,43 @@ for type in types[2:]:
 
             Path(destiny_im).mkdir(exist_ok=True, parents=True)
 
+            files_in = sorted(glob.glob(origin + f"*.root"))
+            '''
+            bases= sorted(list(set([re.search(f'/.*({type}.+-df.+)_', x).group(1) for x in files_in])))
+            for base_out in bases[:]:
+                preDelphes_file = 'df_photon_smeared_'+ base_out +'.pickle'
+            '''
+
             for input_file in sorted(glob.glob(origin + f"*.root"))[:]:
 
+                if 'All' not in input_file:
+                    name_base = re.search(f'/.*({type}.+)-df', input_file).group(1)
+                    dataset = re.search(f'/.*df(.+?)_', input_file).group(1)
+                    tsign = re.search(f'/.*_(.+?)\.', input_file).group(1)
+                    z = re.search(f'/.*_z(.+?)_', input_file).group(1)
+                    t = re.search(f'/.*_t(.+?)_', input_file).group(1)
+                    preDelphes_file = f'./data/clean/df_photon_smeared_{dataset}-{name_base}_{tsign}.pickle'
+                    preDelphes = pd.read_pickle(preDelphes_file)
+                    #print(preDelphes.loc[[299]])
+                    preDelphes = preDelphes[(preDelphes.z_binned == int(z)) & (preDelphes.t_binned == int(t))]
+                    preDelphes = sorted(preDelphes.index.get_level_values(0).unique())
+                    #print(preDelphes)
+                print(input_file)
                 out_file = input_file.replace('.root','_photons.pickle')
 
                 # Create chain of root trees
                 chain = ROOT.TChain("Delphes")
                 chain.Add(input_file)
-    
+
                 # Create object of class ExRootTreeReader
                 treeReader = ROOT.ExRootTreeReader(chain)
                 numberOfEntries = treeReader.GetEntries()
-
+                # if 'All' not in input_file:
+                #     if numberOfEntries == len(preDelphes):
+                #         continue
+                #     else:
+                #         print(numberOfEntries, preDelphes)
+                #         sys.exit()
                 # Get pointers to branches used in this analysis
                 met = treeReader.UseBranch("MissingET")
                 branchPhoton = treeReader.UseBranch("Photon")
@@ -47,11 +73,17 @@ for type in types[2:]:
                 photons = []
                 jets = []
                 leptons = []
-                print(f"\n{input_file}\nNumber of Entries: {numberOfEntries}")
-                for entry in range(numberOfEntries):
+                print(f"Number of Entries: {numberOfEntries}")
+                for entry0 in range(numberOfEntries):
                     # Load selected branches with data from specified event
-                    treeReader.ReadEntry(entry)
+                    treeReader.ReadEntry(entry0)
                     miss = met[0].MET
+                    #print(entry0)
+                    if 'All' in input_file:
+                        entry = entry0
+                    else:
+                        entry = preDelphes[entry0]
+                        #sys.exit()
 
                     #print(branchPhoton, branchElectron, branchMuon)
                     for ph in branchPhoton:
@@ -80,6 +112,7 @@ for type in types[2:]:
                                             "eta": mu.Eta, 'phi': mu.Phi, 'mass': 0.10566, 'MET': miss})
 
                 #input_file.close()
+                chain.Clear()
 
                 df = pd.DataFrame(photons)
                 df_jets = pd.DataFrame(jets)
