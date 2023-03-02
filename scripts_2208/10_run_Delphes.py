@@ -25,6 +25,6 @@ for tev in tevs[:]:
             #print(in_file)
             #continue
             out_file = in_file.replace('.hepmc','.root').replace(origin, destiny)
-            os.system('cd /home/cristian/Programs/MG5_aMC_v2_9_2/Delphes && ./DelphesHepMC '
+            os.system('cd /home/cristian/Programs/MG5_aMC_v2_9_2/Delphes && ./DelphesHepMC2 '
                       f'{root}/Delphes_cards/delphes_card_LLHNscanV4.tcl {out_file} {in_file}')
             #print(zbns)
