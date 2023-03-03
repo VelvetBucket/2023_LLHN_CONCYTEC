@@ -243,7 +243,6 @@ def pipeline(detec_radius, detec_semilength, detec_name):
         print(f'Detected photons in {detec_name}: {counter}')
 
         dicts = pd.DataFrame(dicts)
-        dicts = dicts.set_index('Event')
         #print(dicts.tail(20))
         #sys.exit()
         #print(dicts.shape)
