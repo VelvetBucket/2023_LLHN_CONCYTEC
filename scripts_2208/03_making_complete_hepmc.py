@@ -10,7 +10,7 @@ tevs = [13]
 
 for type in types[:]:
     for tev in tevs[:]:
-        for file_in in sorted(glob.glob(f"./data/raw/run_{type}*{tev}.hepmc")):
+        for file_in in sorted(glob.glob(f"./data/raw/run_{type}*{tev}.hepmc"))[:]:
             # Programming Parameters
 
             base_out = re.search(f'({type}.+)\.', file_in).group(1)
@@ -33,22 +33,22 @@ for type in types[:]:
 
             event = -1
             for sentence in hepmc:
+                zorigin = 0.0
+                relt = 0.0
                 line = sentence.split()
                 if len(line) > 0:
                     if line[0] == 'E':
                         event += 1
-                        print(f'{base_out}: Event {event}')
+                        if (event % 100) == 0:
+                            print(f'{base_out}: Event {event}')
                         #print(event)
                     elif line[0] == 'P':
                         pid = int(line[1])
-                        if keys.count([event, pid]) == 1:
+                        if (abs(int(line[2])) == 22) and (int(line[11]) == 0) and keys.count([event, pid]) == 1:
                             #print([event, pid])
                             this = new_observs.loc[(event,pid)]
                             zorigin = this.z_origin
                             relt = this.rel_tof
-                        else:
-                            zorigin = 0.0
-                            relt = 0.0
                         line.insert(13, str(relt))
                         line.insert(13, str(zorigin))
                         sentence = ' '.join(line) + '\n'
