@@ -16,37 +16,17 @@ print('EXRROT TREE READER:',ROOT.gInterpreter.Declare('#include "external/ExRoot
 types = ['ZH', "WH", "TTH"]
 tevs = [13]
 
-for type in types[:1]:
+for type in types[:]:
         for tev in tevs[:]:
 
-            origin = f"./data/bins/{tev}/{type}/"
-            destiny = f"./data/bins/{tev}/{type}/"
+            origin = f"./data/clean/"
+            destiny = f"./data/clean/"
             destiny_im = f"./cases/{tev}/{type}/ims/only_Delphes/"
 
             Path(destiny_im).mkdir(exist_ok=True, parents=True)
 
-            files_in = sorted(glob.glob(origin + f"*.root"))
-            '''
-            bases= sorted(list(set([re.search(f'/.*({type}.+-df.+)_', x).group(1) for x in files_in])))
-            for base_out in bases[:]:
-                preDelphes_file = 'df_photon_smeared_'+ base_out +'.pickle'
-            '''
-
             for input_file in sorted(glob.glob(origin + f"*.root"))[:]:
 
-                if 'All' not in input_file:
-                    name_base = re.search(f'/.*({type}.+)-df', input_file).group(1)
-                    dataset = re.search(f'/.*df(.+?)_', input_file).group(1)
-                    tsign = re.search(f'/.*_(.+?)\.', input_file).group(1)
-                    z = re.search(f'/.*_z(.+?)_', input_file).group(1)
-                    t = re.search(f'/.*_t(.+?)_', input_file).group(1)
-                    preDelphes_file = f'./data/clean/df_photon_smeared_{dataset}-{name_base}_{tsign}.pickle'
-                    preDelphes = pd.read_pickle(preDelphes_file)
-                    #print(preDelphes.loc[[299]])
-                    preDelphes = preDelphes[(preDelphes.z_binned == int(z)) & (preDelphes.t_binned == int(t))]
-                    preDelphes = sorted(preDelphes.index.get_level_values(0).unique())
-                    #print(preDelphes)
-                print(input_file)
                 out_file = input_file.replace('.root','_photons.pickle')
 
                 # Create chain of root trees
@@ -56,13 +36,7 @@ for type in types[:1]:
                 # Create object of class ExRootTreeReader
                 treeReader = ROOT.ExRootTreeReader(chain)
                 numberOfEntries = treeReader.GetEntries()
-                # if 'All' not in input_file:
-                #     if numberOfEntries == len(preDelphes):
-                #         continue
-                #     else:
-                #         print(numberOfEntries, preDelphes)
-                #         sys.exit()
-                # Get pointers to branches used in this analysis
+
                 met = treeReader.UseBranch("MissingET")
                 branchPhoton = treeReader.UseBranch("Photon")
                 branchJet = treeReader.UseBranch("Jet")
@@ -74,16 +48,11 @@ for type in types[:1]:
                 jets = []
                 leptons = []
                 print(f"Number of Entries: {numberOfEntries}")
-                for entry0 in range(numberOfEntries):
+                for entry in range(numberOfEntries):
                     # Load selected branches with data from specified event
-                    treeReader.ReadEntry(entry0)
+                    treeReader.ReadEntry(entry)
                     miss = met[0].MET
                     #print(entry0)
-                    if 'All' in input_file:
-                        entry = entry0
-                    else:
-                        entry = preDelphes[entry0]
-                        #sys.exit()
 
                     #print(branchPhoton, branchElectron, branchMuon)
                     for ph in branchPhoton:
@@ -91,25 +60,24 @@ for type in types[:1]:
                         if ph.PT > 10 and (abs(ph.Eta) < 1.37 or 1.52 < abs(ph.Eta) < 2.37):
                             #print(ph.Eta)
                             photons.append({"N": entry, "E":ph.E, "pt":ph.PT, "eta":ph.Eta, 'phi': ph.Phi,
-                                            'rel_tof': ph.T, 'MET': miss})
+                                            'z_origin': ph.ZOrigin, 'rel_tof': ph.RelativeT,'MET': miss})
 
                     for jet in branchJet:
                         if jet.PT > 25:
                             y = np.log((jet.PT * np.sinh(jet.Eta) + np.sqrt(jet.Mass**2 +
                                 (jet.PT * np.cosh(jet.Eta))**2)) / (np.sqrt(jet.Mass**2 + jet.PT**2)))
                             if abs(y) < 4.4:
-                                jets.append({"N": entry, "pt": jet.PT, "eta": jet.Eta, 'phi': jet.Phi,
-                                             'M': jet.Mass, 'MET': miss})
+                                jets.append({"N": entry, "pt": jet.PT, "eta": jet.Eta, 'phi': jet.Phi})
 
                     for e in branchElectron:
                         if e.PT > 10 and (abs(e.Eta) < 1.37 or 1.52 < abs(e.Eta) < 2.47):
                             leptons.append({"N": entry, 'pdg': 11, "pt":e.PT,
-                                            "eta":e.Eta, 'phi': e.Phi, 'mass': 0.000511, 'MET': miss})
+                                            "eta":e.Eta, 'phi': e.Phi, 'mass': 0.000511})
 
                     for mu in branchMuon:
                         if mu.PT > 10 and abs(mu.Eta) < 2.7:
                             leptons.append({"N": entry, 'pdg': 13, "pt": mu.PT,
-                                            "eta": mu.Eta, 'phi': mu.Phi, 'mass': 0.10566, 'MET': miss})
+                                            "eta": mu.Eta, 'phi': mu.Phi, 'mass': 0.10566})
 
                 #input_file.close()
                 chain.Clear()
@@ -143,23 +111,4 @@ for type in types[:1]:
                 df_leps['id'] = g
                 df_leps = df_leps.set_index(['N', 'id'])
                 df_leps.to_pickle(out_file.replace('_photons', '_leptons'))
-                print(df_leps)
-
-                if 'All' in input_file:
-                    nbins = 50
-
-                    plt.hist(df.eta, bins=nbins)
-                    plt.savefig(destiny_im + f'eta_all.jpg')
-                    #plt.show()
-                    plt.close()
-
-                    plt.hist(df.pt, bins=nbins)
-                    plt.savefig(destiny_im + f'PT_all.jpg')
-                    #plt.show()
-                    plt.close()
-
-                    plt.hist(df.loc[pd.IndexSlice[:,1],'MET'], bins=nbins)
-                    plt.savefig(destiny_im + f'MET_all.jpg')
-                    #plt.show()
-                    plt.close()
-
+                print(df)
