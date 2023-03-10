@@ -7,6 +7,7 @@ import pandas as pd
 from scipy.interpolate import interp1d
 from my_funcs import isolation, get_mass_width
 from pathlib import Path
+import json
 
 ph_eff_zo= pd.read_csv(f'./data/z0_eff_points.csv', delimiter=',', header=None).set_axis(['zorigin','eff'], axis=1)
 mu_eff_pt = pd.read_csv('./data/muon_eff_pt.csv',header=0)
@@ -54,6 +55,7 @@ def t_res(ecell):
 # For bin classification
 z_bins = [0,50,100,200,300,2000.1]
 t_bins = {'1': [0,0.2,0.4,0.6,0.8,1.0,1.5,12.1], '2+': [0,0.2,0.4,0.6,0.8,1.0,12.1]}
+met_bins = [0, 30, 50, np.inf]
 
 destiny_info = f'./data/clean/'
 origin = f"./data/clean/"
@@ -63,16 +65,17 @@ tevs = [13]
 
 for tev in tevs[:]:
 
-    files_in = glob.glob(origin + f"complete*{types[0]}*{base_out}*{tev}*photons.pickle")
-    bases = sorted(list([re.search(f'/.*({types[0]}.+)-df', x).group(1) for x in files_in]))
-    print(bases)
-    sys.exit()
+    files_in = glob.glob(origin + f"complete*{types[0]}*{tev}*photons.pickle")
+    bases = sorted(list([re.search(f'/.*{types[0]}_(.+)_photons', x).group(1) for x in files_in]))
+    #print(bases)
+    #sys.exit()
     for base_out in bases[:]:
 
         bin_matrix = dict()
         for key, t_bin in t_bins.items():
-            bin_matrix[key] = np.zeros((len(z_bins) - 1, len(t_bin) - 1))
-
+            bin_matrix[key] = np.zeros((len(z_bins) - 1, len(t_bin) - 1, len(met_bins) - 1)).tolist()
+        #print(bin_matrix)
+        #sys.exit()
         for type in types[:]:
 
             folder_txt = f"./cases/{tev}/{type}/"
@@ -81,27 +84,49 @@ for tev in tevs[:]:
 
             print(f'RUNNING: {base_out} - {type}')
 
-            input_file = "";
+            input_file = origin + f"complete_{type}_{base_out}_photons.pickle";
             photons = pd.read_pickle(input_file)
             leptons = pd.read_pickle(input_file.replace('photons', 'leptons'))
             jets = pd.read_pickle(input_file.replace('photons', 'jets'))
             #print(photons)
+            #sys.exit()
 
-            if leptons.size == 0:
+            if leptons.size == 0 or photons.size == 0:
                 continue
+            #print(photons.shape[0])
+            ### Aplying resolutions
+
+            ## Z Origin
+            photons['zo_smeared'] = \
+                photons.apply(lambda row:
+                              np.abs(row['z_origin'] + zorigin_res_func(row['z_origin']) * np.random.normal(0, 1)),
+                            axis=1)
+
+            ## relative time of flight
+            photons['rt_smeared'] = \
+                photons.apply(lambda row: row['rel_tof'] + t_res(0.35 * row['E']) * np.random.normal(0, 1), axis=1)
 
             ### Applying efficiencies
+
+            ## leptons
             leptons.loc[(leptons.pdg==11),'eff_value'] = \
                 leptons[leptons.pdg==11].apply(lambda row:
                                                el_normal_factor*el_pt_func(row.pt)*el_eta_func(row.eta), axis=1)
-
             leptons.loc[(leptons.pdg == 13), 'eff_value'] = \
                 leptons[leptons.pdg == 13].apply(lambda row: mu_func(row.pt), axis=1)
 
             leptons['detected'] = leptons.apply(lambda row: np.random.random_sample() < row['eff_value'], axis=1)
 
             leptons = leptons[leptons.detected]
-            #print(leptons)
+
+            ## photons
+            photons['detected'] = \
+                photons.apply(lambda row: np.random.random_sample() < photon_eff_zo(row['zo_smeared']), axis=1)
+            # print(df[['zo_smeared','detected']])
+
+            photons = photons[photons['detected']]
+            #print(photons.shape[0])
+            #sys.exit()
 
             ## Overlapping
             ### Primero electrones
@@ -152,46 +177,31 @@ for tev in tevs[:]:
                              (final_particles.py_ph + final_particles.py_l) ** 2 +
                              (final_particles.pz_ph + final_particles.pz_l) ** 2))
             final_particles = final_particles[(final_particles.pdg == 13) | (np.abs(final_particles.M_eg - m_Z) > 15)]
-            #print(len(photons))
-                if 'All' not in input_file:
-                    photons = photons[photons.index.get_level_values(0).isin(
-                        list(final_particles.index.get_level_values(0)))]
 
-                    name_base = re.search(f'/.*({type}.+)-df', input_file).group(1)
-                    dataset = re.search(f'/.*df(.+?)_', input_file).group(1)
-                    tsign = re.search(f'/.*_(.+?)_photons', input_file).group(1)
-                    z = re.search(f'/.*_z(.+?)_', input_file).group(1)
-                    t = re.search(f'/.*_t(.+?)_', input_file).group(1)
-                    preDelphes_file = f'./data/clean/df_photon_smeared_{dataset}-{name_base}_{tsign}.pickle'
-                    preDelphes = pd.read_pickle(preDelphes_file)
-                    preDelphes = preDelphes[(preDelphes.z_binned == int(z)) & (preDelphes.t_binned == int(t))]
-                    preDelphes = preDelphes.groupby(['Event']).nth(0)
+            photons = photons[photons.index.get_level_values(0).isin(
+                    list(final_particles.index.get_level_values(0)))]
 
+            ### CLaasifying in channels
+            ph_num = photons.groupby(['N']).size()
+            dfs = {'1': photons.loc[ph_num[ph_num == 1].index], '2+': photons.loc[ph_num[ph_num > 1].index]}
 
-                    ### ver cuales no cumplen con su label
-                    if 'df1' in input_file:
-                        nums = photons.groupby(['N']).size()
-                        mismatch_data['1_total'] += nums.shape[0]
-                        mismatch_data['1_to_2+'] += nums[nums > 1].shape[0]
-                        #if nums[nums > 1].shape[0] == 0:
-                        #    continue
-                        outliers = photons.groupby(['N']).nth(0)[nums > 1]
-                        outliers = outliers[['pt']].join(preDelphes[['pt']], how='inner', lsuffix='_AD', rsuffix='_BD')
-                        outliers = outliers[np.isclose(outliers.pt_AD,outliers.pt_BD,rtol=0.1,atol=0.)]
-                        #print(outliers.shape[0])
-                        mismatch_data['1_to_2+-survived'] += outliers.shape[0]
-                    elif 'df2+' in input_file:
-                        nums = photons.groupby(['N']).size()
-                        mismatch_data['2+_total'] += nums.shape[0]
-                        mismatch_data['2+_to_1'] += nums[nums == 1].shape[0]
-                        #if nums[nums == 1].shape[0] == 0:
-                        #    continue
-                        outliers = photons.groupby(['N']).nth(0)[nums == 1]
-                        outliers = outliers[['pt']].join(preDelphes[['pt']], how='inner', lsuffix='_AD', rsuffix='_BD')
-                        outliers = outliers[np.isclose(outliers.pt_AD,outliers.pt_BD,rtol=0.1,atol=0.)]
-                        #print(outliers.shape[0])
-                        mismatch_data['2+_to_1-survived'] += outliers.shape[0]
-                    #print()
-                    #print(len(photons))
-                    #sys.exit()
+            for channel, phs in dfs.items():
+                ## Keeping the most energetic
+                phs = phs.groupby(['N']).nth(0)
+                ## Filtering zorigin and reltof
+                phs = phs[phs['zo_smeared'] < 2000]
+                phs = phs[(0 < phs['rt_smeared']) & (phs['rt_smeared'] < 12)]
+                ## Classifying in bins
+                phs['z_binned'] = np.digitize(phs['zo_smeared'], z_bins) - 1
+                phs['t_binned'] = np.digitize(phs['rt_smeared'], t_bins[channel]) - 1
+                phs['met_binned'] = np.digitize(phs['MET'], met_bins) - 1
+                #print(phs[phs['z_binned'] == 5])
+                ixs, tallies = np.unique(phs[['z_binned','t_binned','met_binned']].values,
+                                return_counts=True, axis=0)
+                #print(ixs, tallies)
+                for ix, tally in zip(ixs, tallies):
+                    z, t, met = ix
+                    bin_matrix[channel][z][t][met] += tally
 
+        with open(destiny + f'bin_matrices-{base_out}.json', 'w') as file:
+            json.dump(bin_matrix, file)
