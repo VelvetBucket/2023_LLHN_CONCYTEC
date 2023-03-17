@@ -12,7 +12,7 @@ function run_mg5 () {
 		sed -i "36s/.*/${beam2}/" "${run_path}"
 		
 		# Le da el tag apropiado al run
-		tag="  ${channel}_${windex}_${mindex}_${tev}     = run_tag ! name of the run "
+		tag="  ${channel}_${windex}_${mindex}_${tindex}_${tev}     = run_tag ! name of the run "
 		sed -i "21s/.*/${tag}/" "${run_path}"
 			
 		#Copia el param_card correspondiente
@@ -39,14 +39,14 @@ function run_mg5 () {
 
 windex="$1"
 mindex="$2"
-filename_o="$3"
-folder_origin='/home/cristian/Desktop/HEP_Jones/paper_2208/param_c'
+tindex="$3"
+filename_o="$4"
 config_path='/home/cristian/Programs/MG5_aMC_v2_9_2/HN_run_config.txt'
 
 tevs="13"
 
 small="  1e-12 = small_width_treatment"
-nevents="  1000 = nevents ! Number of unweighted events requested "
+nevents="  10000 = nevents ! Number of unweighted events requested "
 ct="  0 = time_of_flight ! threshold (in mm) below which the invariant livetime is not written (-1 means not written)"
 decay="   True  = cut_decays    ! Cut decay products "
 
@@ -64,7 +64,7 @@ ptcl_min=" 27.0  = xptl ! minimum pt for at least one charged lepton "
 ############## WH ##################
 
 channel="ZH"
-folder_destiny="/home/cristian/Programs/MG5_aMC_v2_9_2/HN_${channel}/Cards"
+folder_destiny="/home/cristian/Programs/MG5_aMC_v2_9_2/val-HN_${channel}/Cards"
 run_path="${folder_destiny}/run_card.dat"
 
 # Agregrando cortes propios
@@ -80,7 +80,7 @@ run_mg5 "${channel}"
 ############## WH ##################
 
 channel="WH"
-folder_destiny="/home/cristian/Programs/MG5_aMC_v2_9_2/HN_${channel}/Cards"
+folder_destiny="/home/cristian/Programs/MG5_aMC_v2_9_2/val-HN_${channel}/Cards"
 run_path="${folder_destiny}/run_card.dat"
 
 # Agregrando cortes propios
@@ -95,7 +95,7 @@ run_mg5 "${channel}"
 ############## TTH ##################
 
 channel="TTH"
-folder_destiny="/home/cristian/Programs/MG5_aMC_v2_9_2/HN_${channel}/Cards"
+folder_destiny="/home/cristian/Programs/MG5_aMC_v2_9_2/val-HN_${channel}/Cards"
 run_path="${folder_destiny}/run_card.dat"
 
 # Agregrando cortes propios

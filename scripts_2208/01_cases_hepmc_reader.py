@@ -36,7 +36,7 @@ for type in types[:]:
             limit = 2
 
             it_start = 0
-            batch = 500
+            batch = 10000
             corte_inf = it_start * batch
             corte_sup = corte_inf + batch * 2
             final_part_active = True

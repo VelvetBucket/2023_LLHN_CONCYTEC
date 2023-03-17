@@ -3,5 +3,5 @@
 
 /home/cristian/Programs/MG5_aMC_v2_9_2/bin/mg5_aMC mg5_launches.txt
 
-bash width_dist.sh 
+bash benchs.sh 
 bash hepmc_dist.sh 

@@ -3,12 +3,12 @@
 
 folder_destiny="/home/cristian/Desktop/HEP_Jones/paper_2023/scripts_2208/data/raw"
 
-tipos="ZH WH TTH"
+tipos="TTH"
 
 for tipo in ${tipos}
 	do
 	#declare -a arr
-	folder_origin="/home/cristian/Programs/MG5_aMC_v2_9_2/HN_${tipo}/Events"
+	folder_origin="/home/cristian/Programs/MG5_aMC_v2_9_2/val-HN_${tipo}/Events"
 	cd ${folder_origin}
 	runs=( $(ls -d */) )
 	for run in "${runs[@]}"
