@@ -68,12 +68,12 @@ module ParticlePropagator ParticlePropagator {
   # radius of the magnetic field coverage, in m
   set Radius 1.15
   # half-length of the magnetic field coverage, in m
-  set HalfLength 3.51
+  set HalfLength 3.512
   
   ## ATLAS ecal small measurements
   
-  set RadiusMax 1.4
-  set HalfLengthMax 2.9
+  set RadiusMax 1.5
+  set HalfLengthMax 3.512
 
   # magnetic field
   set Bz 2.0

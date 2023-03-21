@@ -32,7 +32,7 @@ el_eta_func = interp1d(el_eff_eta.BinLeft,el_eff_eta.Efficiency, fill_value=tupl
 el_normal_factor = 1/0.85
 ## For comparing with the Z mass
 m_Z = 91.1876 #GeV
-
+Ecell_factor = 0.35
 ## For photon's z origin resolution
 zorigin_res_func = interp1d(zorigin_res.zorigin, zorigin_res.res, fill_value=tuple(zorigin_res.res.iloc[[0,-1]]),
                         bounds_error=False)
@@ -104,7 +104,7 @@ for tev in tevs[:]:
 
             ## relative time of flight
             photons['rt_smeared'] = \
-                photons.apply(lambda row: row['rel_tof'] + t_res(0.35 * row['E']) * np.random.normal(0, 1), axis=1)
+                photons.apply(lambda row: row['rel_tof'] + t_res(Ecell_factor * row['E']) * np.random.normal(0, 1), axis=1)
 
             ### Applying efficiencies
 
@@ -188,7 +188,8 @@ for tev in tevs[:]:
             for channel, phs in dfs.items():
                 ## Keeping the most energetic
                 phs = phs.groupby(['N']).nth(0)
-                ## Filtering zorigin and reltof
+                ## Filtering Ecell, zorigin and reltof
+                phs = phs[(Ecell_factor * phs['E']) > 10]
                 phs = phs[phs['zo_smeared'] < 2000]
                 phs = phs[(0 < phs['rt_smeared']) & (phs['rt_smeared'] < 12)]
                 ## Classifying in bins

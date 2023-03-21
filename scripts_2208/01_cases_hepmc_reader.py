@@ -6,8 +6,8 @@ import glob
 import re
 
 # Particle Parameters
-neutralinos = [9900016, 9900014, 9900012]
-neutrinos = [12, 14, 16, 18]
+neutralinos = [9900016, 9900014, 9900012, 1000023]
+neutrinos = [12, 14, 16, 1000022]
 
 ATLAS_ECAL_r = 1.4  # meters
 ATLAS_ECAL_z = 2.9
