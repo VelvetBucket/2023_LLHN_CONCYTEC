@@ -9,8 +9,8 @@ import sys
 import glob
 #CMSdet_radius = 1.775 # meters
 #CMSdet_semilength = 4.050
-ATLASdet_radius= 1.4
-ATLASdet_semilength = 2.9
+ATLASdet_radius= 1.5
+ATLASdet_semilength = 3.512
 
 mass_conversion = 1.78266192*10**(-27)	#GeV to kg
 p_conversion = 5.344286*10**(-19)	#GeV to kg.m/s

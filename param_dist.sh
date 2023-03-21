@@ -57,7 +57,7 @@ ptj_min=" 25.0  = ptj       ! minimum pt for the jets "
 etaa_max=" 2.4  = etaa    ! max rap for the photons "
 etal_max="# 2.5  = etal    ! max rap for the charged leptons"
 etal_max_TTH=" 2.7  = etal    ! max rap for the charged leptons"
-etapdg_max=" {11: 2.5, 13: 2.7, 15: 5.0, 17: 5.0} = eta_max_pdg ! rap cut for other particles (syntax e.g. {6: 2.5, 23: 5})"
+etapdg_max=" {11: 2.5, 13: 2.7, 15: 5.0} = eta_max_pdg ! rap cut for other particles (syntax e.g. {6: 2.5, 23: 5})"
 ptcl_min=" 27.0  = xptl ! minimum pt for at least one charged lepton "
 
 
