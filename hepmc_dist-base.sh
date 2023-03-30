@@ -8,7 +8,7 @@ tipos="ZH WH TTH"
 for tipo in ${tipos}
 	do
 	#declare -a arr
-	folder_origin="/home/cristian/Programs/MG5_aMC_v2_9_2/val-HN_${tipo}/Events"
+	folder_origin="/home/cristian/Programs/MG5_aMC_v2_9_2/val-cs-1-HN_${tipo}/Events"
 	cd ${folder_origin}
 	runs=( $(ls -d */) )
 	for run in "${runs[@]}"
@@ -16,7 +16,7 @@ for tipo in ${tipos}
 		#echo "${run}"
 		cd "${run}"
 		file_mc=("$(ls -d *_banner.txt)")
-		cross=("$(tail -9 ${file_mc} | head -1)")
+		cross=("$(tail -4 ${file_mc} | head -1)")
 		file_mc=${file_mc%_banner.txt*}
 		file_mc=${file_mc#*("${run}")}
 		echo "${file_mc}	${cross}"

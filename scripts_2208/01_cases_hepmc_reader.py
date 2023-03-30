@@ -9,14 +9,6 @@ import re
 neutralinos = [9900016, 9900014, 9900012, 1000023]
 neutrinos = [12, 14, 16, 1000022]
 
-ATLAS_ECAL_r = 1.4  # meters
-ATLAS_ECAL_z = 2.9
-ATLAS_HCAL_r = 4.25 - 0.1
-ATLAS_HCAL_z = 5.5 - 0.1
-active_ratio = 1.0
-
-active_r = (ATLAS_ECAL_r + active_ratio * (ATLAS_HCAL_r - ATLAS_ECAL_r)) * 1000  # mm
-active_z = (ATLAS_ECAL_z + active_ratio * (ATLAS_HCAL_z - ATLAS_ECAL_z)) * 1000
 # print(active_z, active_r)
 
 destiny = "./data/clean/"
@@ -77,8 +69,7 @@ for type in types[:]:
                     if num > 0: #Selection of relevant particles/vertices in the last event
                         #print(mpx,mpy)
                         selection = set()
-                        data[num - 1] = {'params': params, 'v': dict(), 'a': [], 'n5': holder['n5'],
-                                         'MET': None,'MPx':None, 'MPy':None}
+                        data[num - 1] = {'params': params, 'v': dict(), 'a': [], 'n5': holder['n5']}
                         for n5_k, n5_v in holder['n5'].items():
                             #print(n5_k , n5_i)
                             selection.add(n5_k)
@@ -91,19 +82,10 @@ for type in types[:]:
                                 x, y, z = [d_scaler * ix for ix in holder['v'][outg_a][0:3]]
                                 #print(x,y,z)
                                 r = np.sqrt(x**2 + y**2)
-                                if (r > active_r) or (abs(z) > active_z):
-                                    tpx -= photon[1]
-                                    tpy -= photon[2]
-                                    #print(tpx,tpy)
                             selection.add(outg_a)
                         for vertex in selection:
                             # select only the vertices that have a neutralino as incoming
                             data[num-1]['v'][vertex] = holder['v'][vertex]
-                        # getting the met
-                        met = np.sqrt(tpx**2 + tpy**2)
-                        data[num-1]['MET'] = met
-                        data[num - 1]['MPx'] = tpx
-                        data[num - 1]['MPy'] = tpy
                     #print(data)
                     holder = {'v':dict(),'a':[],'n5':dict()}
                     i += 1
@@ -123,8 +105,6 @@ for type in types[:]:
                         final_part_active = False
                         break
                     num += 1
-                    tpx = 0
-                    tpy = 0
                 elif line[0] == 'U':
                     params = line[1:]
                     if params[0] == 'GEV':
@@ -146,9 +126,6 @@ for type in types[:]:
                     pdg = line[2]
                     #Extracting the MET of the event
                     in_vertex = int(line[11])
-                    if (in_vertex == 0) and (abs(int(pdg)) not in neutrinos):
-                        tpx += float(line[3]) * p_scaler
-                        tpy += float(line[4]) * p_scaler
 
                     if (abs(int(pdg)) == 22) and (in_vertex == 0):
                         # id = int(line[1])
@@ -164,8 +141,7 @@ for type in types[:]:
             if final_part_active:
                 # Event selection for the last event
                 selection = set()
-                data[num - 1] = {'params': params, 'v': dict(), 'a': [], 'n5': holder['n5'],
-                                 'MET': None, 'MPx': None, 'MPy': None}
+                data[num - 1] = {'params': params, 'v': dict(), 'a': [], 'n5': holder['n5']}
                 for n5_k, n5_v in holder['n5'].items():
                     # print(n5_k , n5_i)
                     selection.add(n5_k)
@@ -178,19 +154,10 @@ for type in types[:]:
                         x, y, z = [d_scaler * ix for ix in holder['v'][outg_a][0:3]]
                         # print(x,y,z)
                         r = np.sqrt(x ** 2 + y ** 2)
-                        if (r > active_r) or (abs(z) > active_z):
-                            tpx -= photon[1]
-                            tpy -= photon[2]
-                            # print(tpx,tpy)
                     selection.add(outg_a)
                 for vertex in selection:
                     # select only the vertices that have a neutralino as incoming
                     data[num - 1]['v'][vertex] = holder['v'][vertex]
-                # getting the met
-                met = np.sqrt(tpx ** 2 + tpy ** 2)
-                data[num - 1]['MET'] = met
-                data[num - 1]['MPx'] = tpx
-                data[num - 1]['MPy'] = tpy
 
                 #print(data[num])
                 #print(data.keys())

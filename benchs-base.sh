@@ -21,7 +21,7 @@ do
 	
 	sed -e "s/M_NLSP/${nlsp}/g" -e "s/M_LSP/${lsp}/g" -e "s/LFT_WIDTH/${width}/g" "${origin}" > "${destiny}"
 	
-	bash param_dist-base.sh "MN${nlsp0}" "ML${lsp1}" "T${t0}" "${destiny}"
+	bash param_dist-base_1.sh "MN${nlsp0}" "ML${lsp1}" "T${t0}" "${destiny}"
 	
 done
 
