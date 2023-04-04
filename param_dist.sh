@@ -53,6 +53,10 @@ etaa_max=" 2.4  = etaa    ! max rap for the photons "
 etal_max="# 2.5  = etal    ! max rap for the charged leptons"
 etapdg_max=" {11: 2.5, 13: 2.7, 15: 5.0} = eta_max_pdg ! rap cut for other particles (syntax e.g. {6: 2.5, 23: 5})"
 ptcl_min=" 27.0  = xptl ! minimum pt for at least one charged lepton "
+etaj_max=" -1.0 = etaj    ! max rap for the jets "
+drjj_min=" 0.0 = drjj    ! min distance between jets "
+drjl_min=" 0.0 = drjl    ! min distance between jet and lepton "
+r0gamma="  0.0 = R0gamma ! Radius of isolation code"
 
 
 ############## WH ##################
@@ -79,6 +83,10 @@ for channel in ${tipos}
 	changing " = etal "  "$etal_max"
 	changing " = eta_max_pdg "  "$etapdg_max"
 	changing " = xptl"  "$ptcl_max"
+	changing " = etaj " "$etaj_max"
+	changing " = drjj " "$drjj_min"
+	changing " = drjl " "$drjl_min"
+	changing " = R0gamma " "$r0gamma"
 	
 	run_mg5 "$channel"
 
