@@ -115,9 +115,6 @@ def pipeline(detec_radius, detec_semilength, detec_name):
                     info['pz'] = pz
                     info['ET'] = Et
                     info['E'] = E
-                    info['MET'] = holder['MET']
-                    info['MPy'] = holder['MPy']
-                    info['MPx'] = holder['MPx']
                     ix += 1
 
                     if pt < 10.0:
@@ -243,7 +240,7 @@ def pipeline(detec_radius, detec_semilength, detec_name):
         print(f'Detected photons in {detec_name}: {counter}')
 
         dicts = pd.DataFrame(dicts)
-        #print(dicts.tail(20))
+        print(dicts)
         #sys.exit()
         #print(dicts.shape)
         #print(dicts.z.max(), dicts.z.min(), dicts.r.max())

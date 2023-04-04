@@ -1,6 +1,12 @@
 #Script para asignar un valor de coupling the Higgs a n5 n5 en todos los param cards.
 #!/bin/bash
 
+function changing () {
+	x=$(find|grep "$1" "${run_path}")
+	sed -i "s/$x/$2/g" "${run_path}"
+	#echo "$x"
+}
+
 function run_mg5 () {
 	for tev in $tevs
 		do
@@ -8,27 +14,16 @@ function run_mg5 () {
 		# Define las energias de los beams en el run_card
 		beam1="     ${tev_}.0     = ebeam1  ! beam 1 total energy in GeV"
 		beam2="     ${tev_}.0     = ebeam2  ! beam 2 total energy in GeV"
-		sed -i "35s/.*/${beam1}/" "${run_path}"
-		sed -i "36s/.*/${beam2}/" "${run_path}"
+		changing " = ebeam1 " "$beam1"
+		changing " = ebeam2 " "$beam2"
 		
 		# Le da el tag apropiado al run
 		tag="  ${channel}_${windex}_${mindex}_${tindex}_${tev}     = run_tag ! name of the run "
-		sed -i "21s/.*/${tag}/" "${run_path}"
+		changing " = run_tag " "$tag"
 			
 		#Copia el param_card correspondiente
 		filename_d="${folder_destiny}/param_card.dat"
 		cp "${filename_o}" "${filename_d}" 
-
-
-		#Cambia el small_width_treatment
-		sed -i "17s/.*/${small}/" "${run_path}"
-
-		#Seteando numero de eventos
-		sed -i "26s/.*/${nevents}/" "${run_path}"
-
-		#Agrega los cortes comunes
-		sed -i "59s/.*/${ct}/" "${run_path}"
-		sed -i "94s/.*/${decay}/" "${run_path}"
 			
 		# Correr el run
 		cd "${folder_destiny}"
@@ -56,55 +51,35 @@ ptl_min_WH=" 27.0  = ptl       ! minimum pt for the charged leptons "
 ptj_min=" 25.0  = ptj       ! minimum pt for the jets "
 etaa_max=" 2.4  = etaa    ! max rap for the photons "
 etal_max="# 2.5  = etal    ! max rap for the charged leptons"
-etal_max_TTH=" 2.7  = etal    ! max rap for the charged leptons"
 etapdg_max=" {11: 2.5, 13: 2.7, 15: 5.0} = eta_max_pdg ! rap cut for other particles (syntax e.g. {6: 2.5, 23: 5})"
 ptcl_min=" 27.0  = xptl ! minimum pt for at least one charged lepton "
 
 
 ############## WH ##################
 
-channel="ZH"
-folder_destiny="/home/cristian/Programs/MG5_aMC_v2_9_2/val-HN_${channel}/Cards"
-run_path="${folder_destiny}/run_card.dat"
+tipos="ZH WH TTH"
 
-# Agregrando cortes propios
-sed -i "100s/.*/${pta_min}/" "${run_path}"
-sed -i "101s/.*/${ptl_min}/" "${run_path}"
-sed -i "114s/.*/${etaa_max}/" "${run_path}"
-sed -i "115s/.*/${etal_max}/" "${run_path}"
-sed -i "120s/.*/${etapdg_max}/" "${run_path}"
-sed -i "155s/.*/${ptcl_min}/" "${run_path}"
+for channel in ${tipos}
+	do
+	folder_destiny="/home/cristian/Programs/MG5_aMC_v2_9_2/val-HN_${channel}/Cards"
+	run_path="${folder_destiny}/run_card.dat"
+	
+	changing " = small_width_treatment "  "$small"
+	changing " = nevents "  "$nevents"
+	changing " = time_of_flight "  "$ct"
+	changing " = cut_decays "  "$decay"
+	changing " = pta "  "$pta_min"
+	changing " = ptl "  "$ptl_min"
+	if [ $channel == "WH" ]
+		then
+		changing " = ptl "  "$ptl_min_WH"
+	fi
+	changing " = ptj "  "$ptj_min"
+	changing " = etaa "  "$etaa_max"
+	changing " = etal "  "$etal_max"
+	changing " = eta_max_pdg "  "$etapdg_max"
+	changing " = xptl"  "$ptcl_max"
+	
+	run_mg5 "$channel"
 
-run_mg5 "${channel}"
-
-############## WH ##################
-
-channel="WH"
-folder_destiny="/home/cristian/Programs/MG5_aMC_v2_9_2/val-HN_${channel}/Cards"
-run_path="${folder_destiny}/run_card.dat"
-
-# Agregrando cortes propios
-sed -i "100s/.*/${pta_min}/" "${run_path}"
-sed -i "101s/.*/${ptl_min_WH}/" "${run_path}"
-sed -i "114s/.*/${etaa_max}/" "${run_path}"
-sed -i "115s/.*/${etal_max}/" "${run_path}"
-sed -i "120s/.*/${etapdg_max}/" "${run_path}"
-
-run_mg5 "${channel}"
-
-############## TTH ##################
-
-channel="TTH"
-folder_destiny="/home/cristian/Programs/MG5_aMC_v2_9_2/val-HN_${channel}/Cards"
-run_path="${folder_destiny}/run_card.dat"
-
-# Agregrando cortes propios
-sed -i "100s/.*/${ptj_min}/" "${run_path}"
-sed -i "101s/.*/${pta_min}/" "${run_path}"
-sed -i "102s/.*/${ptl_min}/" "${run_path}"
-sed -i "117s/.*/${etaa_max}/" "${run_path}"
-sed -i "118s/.*/${etal_max_TTH}/" "${run_path}"
-sed -i "167s/.*/${ptcl_min}/" "${run_path}"
-
-run_mg5 "${channel}"
-
+done

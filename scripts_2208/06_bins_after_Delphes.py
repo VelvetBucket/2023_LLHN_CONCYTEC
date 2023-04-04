@@ -17,6 +17,8 @@ zorigin_res= pd.read_csv(f'./data/z0_res_points.csv', delimiter=',', header=None
 reltof_res= pd.read_csv(f'./data/z0_res_points.csv', delimiter=',', header=None).set_axis(['zorigin','res'], axis=1)
 cutflow_path = "./data/clean/cutflow/"
 
+scales = pd.read_csv("./data/cross_section.dat",delimiter="\t",index_col=0,header=None,squeeze=True)
+
 np.random.seed(0)
 
 ## For photonresolution
@@ -80,7 +82,9 @@ for tev in tevs[:]:
 
             folder_txt = f"./cases/{tev}/{type}/"
             cutflows = dict()
-            scale = 1.
+            scale = scales[type + '_' + base_out]  * 1000 * 139 / 10000
+            #print(scale)
+            #sys.exit()
 
             print(f'RUNNING: {base_out} - {type}')
 
@@ -202,7 +206,7 @@ for tev in tevs[:]:
                 #print(ixs, tallies)
                 for ix, tally in zip(ixs, tallies):
                     z, t, met = ix
-                    bin_matrix[channel][z][t][met] += tally
+                    bin_matrix[channel][z][t][met] += tally * scale
 
         with open(destiny + f'bin_matrices-{base_out}.json', 'w') as file:
             json.dump(bin_matrix, file)

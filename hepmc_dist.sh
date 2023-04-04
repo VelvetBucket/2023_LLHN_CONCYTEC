@@ -3,7 +3,7 @@
 
 folder_destiny="/home/cristian/Desktop/HEP_Jones/paper_2023/scripts_2208/data/raw"
 
-tipos="TTH"
+tipos="ZH WH TTH"
 
 for tipo in ${tipos}
 	do
