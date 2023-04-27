@@ -4,6 +4,10 @@ from pathlib import Path
 import gc
 import glob
 import re
+import psutil
+import tracemalloc
+import sys
+tracemalloc.start()
 
 # Particle Parameters
 neutralinos = [9900016, 9900014, 9900012, 1000023]
@@ -12,12 +16,12 @@ neutrinos = [12, 14, 16, 1000022]
 # print(active_z, active_r)
 
 destiny = "./data/clean/"
-types = ['ZH', "WH", "TTH"]
+types = ["ZH","WH","TTH"]
 tevs = [13]
 
 for type in types[:]:
     for tev in tevs[:]:
-        for file_in in sorted(glob.glob(f"./data/raw/run_{type}*{tev}.hepmc")):
+        for file_in in sorted(glob.glob(f"./data/raw/run_{type}*{tev}.hepmc"))[:]:
             # Programming Parameters
 
             base_out = re.search(f'({type}.+)\.', file_in).group(1)
@@ -30,7 +34,7 @@ for type in types[:]:
             it_start = 0
             batch = 10000
             corte_inf = it_start * batch
-            corte_sup = corte_inf + batch * 2
+            corte_sup = corte_inf + batch * 20
             final_part_active = True
 
             # Action
@@ -43,11 +47,9 @@ for type in types[:]:
 
             # Initializing values
             data = dict()
-            codes = []
             num = 0
             p_scaler = None
             d_scaler = None
-
             for sentence in df:
             #while i<(limit+20):
                 #sentence = df.readline()
@@ -92,14 +94,24 @@ for type in types[:]:
                     if (num % 500) == 0:
                         print(f'RUNNING: {base_out} ' + f'Event {num}')
                         print(len(data))
+                        print(str(psutil.virtual_memory().percent) + " %")
                     if num == nfile * batch:
                         with open(file_out.replace('.json', f'-{nfile}.json'), 'w') as file:
                             json.dump(data, file)
                         print(f'Saved til {num - 1} in {file_out.replace(".json", f"-{nfile}.json")}')
                         del data
-                        #del globals()['data']
                         gc.collect()
+
+                        snapshot = tracemalloc.take_snapshot()
+                        top_stats = snapshot.statistics('lineno')
+                        print("[ Top 10 ]")
+                        for stat in top_stats[:10]:
+                            print(stat)
+                        #(gc.get_objects())
+                        #sys.exit()
+
                         data = dict()
+                        holder = {'v': dict(), 'a': [], 'n5': dict()}
                         nfile += 1
                     if num == corte_sup:
                         final_part_active = False
@@ -135,7 +147,6 @@ for type in types[:]:
                     elif abs(int(pdg)) in neutralinos:
                         info = *[float(x) for x in line[3:8]], outg # px,py,pz,E,m,out_vertex
                         holder['n5'][in_vertex] = list(info)
-                    codes.append(pdg)
             df.close()
 
             if final_part_active:

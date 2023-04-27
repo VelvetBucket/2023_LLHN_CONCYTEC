@@ -3,14 +3,17 @@ import sys
 import glob
 import re
 import pandas as pd
+import psutil
+import tracemalloc
+tracemalloc.start()
 
 destiny = "./data/raw/"
-types = ['ZH', "WH", "TTH"]
+types = ["ZH","WH","TTH"]
 tevs = [13]
 
 for type in types[:]:
     for tev in tevs[:]:
-        for file_in in sorted(glob.glob(f"./data/raw/run_{type}*{tev}.hepmc"))[:]:
+        for file_in in sorted(glob.glob(f"./data/raw/run_{type}*{tev}.hepmc"))[1:]:
             # Programming Parameters
 
             base_out = re.search(f'({type}.+)\.', file_in).group(1)
@@ -41,6 +44,12 @@ for type in types[:]:
                         event += 1
                         if (event % 100) == 0:
                             print(f'{base_out}: Event {event}')
+                            print(str(psutil.virtual_memory().percent) + " %")
+                            snapshot = tracemalloc.take_snapshot()
+                            top_stats = snapshot.statistics('lineno')
+                            print("[ Top 5 ]")
+                            for stat in top_stats[:5]:
+                                print(stat)
                         #print(event)
                     elif line[0] == 'P':
                         pid = int(line[1])

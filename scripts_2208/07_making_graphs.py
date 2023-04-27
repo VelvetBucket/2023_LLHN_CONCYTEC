@@ -45,7 +45,7 @@ for input_file in sorted(glob.glob(origin + f"bin_*.json"))[:]:
             ymin_p.append(row[ix].get_ylim()[0])
             ir += 1
 
-plt.setp(axs, ylim=(min(ymin_p), max(ymax_p)))
+plt.setp(axs, ylim=(10**-2, 2*10**6))
 #plt.suptitle(f'{base_out} GeV\n{events} events')
 #plt.show()
 fig.savefig(destiny + f'validation_graphs.png')

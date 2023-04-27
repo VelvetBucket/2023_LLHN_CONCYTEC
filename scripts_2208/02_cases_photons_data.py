@@ -62,7 +62,8 @@ def pipeline(detec_radius, detec_semilength, detec_name):
             print(len(data.keys()))
 
             for event in list(data.keys())[:]:
-                print(f'RUNNING: {base_out} - {detec_name} - Event {event}')
+                if (event % 500) == 0:
+                    print(f'RUNNING: {base_out} - {detec_name} - Event {event}')
                 holder = data[event]
                 params = holder['params']
                 # Defining scaler according to parameters units
@@ -251,7 +252,7 @@ def pipeline(detec_radius, detec_semilength, detec_name):
     return
 
 
-types = ['ZH', "WH", "TTH"]
+types = ["ZH","WH","TTH"]
 tevs = [13]
 
 for type in types[:]:
