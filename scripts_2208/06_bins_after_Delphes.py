@@ -79,7 +79,6 @@ for tev in tevs[:]:
         #sys.exit()
         for type in types[:]:
 
-            folder_txt = f"./cases/{tev}/{type}/"
             cutflows = dict()
             scale = scales[type + '_' + base_out]  * 1000 * 0.2 * 139 / 30000
             #print(scale)

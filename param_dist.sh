@@ -36,7 +36,7 @@ windex="$1"
 mindex="$2"
 tindex="$3"
 filename_o="$4"
-config_path='/home/cristian/Programs/MG5_aMC_v2_9_2/HN_run_config.txt'
+config_path='/home/cristian/Desktop/HEP_Jones/paper_2023/HN_run_config.txt'
 
 tevs="13"
 

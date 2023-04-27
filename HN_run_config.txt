@@ -1,0 +1,6 @@
+launch
+shower=Pythia8
+detector=OFF
+analysis=OFF
+0
+0

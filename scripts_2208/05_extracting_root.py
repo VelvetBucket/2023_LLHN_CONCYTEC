@@ -19,9 +19,6 @@ for type in types[:]:
 
             origin = f"./data/clean/"
             destiny = f"./data/clean/"
-            destiny_im = f"./cases/{tev}/{type}/ims/only_Delphes/"
-
-            Path(destiny_im).mkdir(exist_ok=True, parents=True)
 
             for input_file in sorted(glob.glob(origin + f"*.root"))[:]:
 
