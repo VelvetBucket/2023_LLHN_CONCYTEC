@@ -4,10 +4,6 @@ from pathlib import Path
 import gc
 import glob
 import re
-import psutil
-import tracemalloc
-import sys
-tracemalloc.start()
 
 # Particle Parameters
 neutralinos = [9900016, 9900014, 9900012, 1000023]
@@ -34,7 +30,7 @@ for type in types[:]:
             it_start = 0
             batch = 10000
             corte_inf = it_start * batch
-            corte_sup = corte_inf + batch * 20
+            corte_sup = corte_inf + batch * 99999
             final_part_active = True
 
             # Action
@@ -101,14 +97,6 @@ for type in types[:]:
                         print(f'Saved til {num - 1} in {file_out.replace(".json", f"-{nfile}.json")}')
                         del data
                         gc.collect()
-
-                        snapshot = tracemalloc.take_snapshot()
-                        top_stats = snapshot.statistics('lineno')
-                        print("[ Top 10 ]")
-                        for stat in top_stats[:10]:
-                            print(stat)
-                        #(gc.get_objects())
-                        #sys.exit()
 
                         data = dict()
                         holder = {'v': dict(), 'a': [], 'n5': dict()}

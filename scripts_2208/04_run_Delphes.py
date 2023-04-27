@@ -9,8 +9,6 @@ destiny_base = './data/clean'
 types = ['ZH', "WH", "TTH"]
 tevs = [13]
 
-os.system(f'cd {destiny_base} && find . -name \*.root -type f -delete')
-
 for tev in tevs[:]:
     for type in types[:]:
 

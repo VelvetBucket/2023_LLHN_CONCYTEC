@@ -1,14 +1,12 @@
 import re
 import json
 import numpy as np
-import matplotlib.pyplot as plt
 from pathlib import Path
 import pandas as pd
 from my_funcs import my_arctan
 import sys
 import glob
-#CMSdet_radius = 1.775 # meters
-#CMSdet_semilength = 4.050
+
 ATLASdet_radius= 1.5
 ATLASdet_semilength = 3.512
 
@@ -16,14 +14,6 @@ mass_conversion = 1.78266192*10**(-27)	#GeV to kg
 p_conversion = 5.344286*10**(-19)	#GeV to kg.m/s
 c_speed = 299792458	#m/s
 
-
-def plot_config(figsize,xtitle,ytitle,xsize, ysize, xtsize, ytsize):
-    plt.figure(figsize=figsize)
-    plt.ylabel(ytitle, fontsize=ysize)
-    plt.xlabel(xtitle, fontsize=xsize)
-    plt.xticks(fontsize=xtsize)
-    plt.yticks(fontsize=ytsize)
-    return
 
 def pipeline(detec_radius, detec_semilength, detec_name):
 

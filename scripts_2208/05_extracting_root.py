@@ -1,7 +1,6 @@
 import sys
 import os
 import pandas as pd
-import matplotlib.pyplot as plt
 import glob
 import ROOT
 from pathlib import Path
@@ -9,7 +8,6 @@ import numpy as np
 import re
 
 print('ROOT FIRST ATTEMPT:',ROOT.gSystem.Load("libDelphes"))
-#print('ROOT SECON ATTEMPT:',ROOT.gSystem.Load("libDelphes"))
 print('DELPHES CLASSES   :',ROOT.gInterpreter.Declare('#include "classes/DelphesClasses.h"'))
 print('EXRROT TREE READER:',ROOT.gInterpreter.Declare('#include "external/ExRootAnalysis/ExRootTreeReader.h"'))
 

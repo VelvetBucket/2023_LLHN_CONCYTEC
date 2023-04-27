@@ -3,9 +3,6 @@ import sys
 import glob
 import re
 import pandas as pd
-import psutil
-import tracemalloc
-tracemalloc.start()
 
 destiny = "./data/raw/"
 types = ["ZH","WH","TTH"]
@@ -44,12 +41,6 @@ for type in types[:]:
                         event += 1
                         if (event % 100) == 0:
                             print(f'{base_out}: Event {event}')
-                            print(str(psutil.virtual_memory().percent) + " %")
-                            snapshot = tracemalloc.take_snapshot()
-                            top_stats = snapshot.statistics('lineno')
-                            print("[ Top 5 ]")
-                            for stat in top_stats[:5]:
-                                print(stat)
                         #print(event)
                     elif line[0] == 'P':
                         pid = int(line[1])
