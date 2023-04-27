@@ -52,7 +52,7 @@ def pipeline(detec_radius, detec_semilength, detec_name):
             print(len(data.keys()))
 
             for event in list(data.keys())[:]:
-                if (event % 500) == 0:
+                if (int(event) % 500) == 0:
                     print(f'RUNNING: {base_out} - {detec_name} - Event {event}')
                 holder = data[event]
                 params = holder['params']

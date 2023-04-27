@@ -15,6 +15,8 @@ destiny = "./data/clean/"
 types = ["ZH","WH","TTH"]
 tevs = [13]
 
+Path(destiny).mkdir(exist_ok=True, parents=True)
+
 for type in types[:]:
     for tev in tevs[:]:
         for file_in in sorted(glob.glob(f"./data/raw/run_{type}*{tev}.hepmc"))[:]:
@@ -35,7 +37,6 @@ for type in types[:]:
 
             # Action
             df = open(file_in, "r")
-            Path(destiny).mkdir(exist_ok=True, parents=True)
 
             while it < 2:
                 df.readline()
@@ -90,7 +91,6 @@ for type in types[:]:
                     if (num % 500) == 0:
                         print(f'RUNNING: {base_out} ' + f'Event {num}')
                         print(len(data))
-                        print(str(psutil.virtual_memory().percent) + " %")
                     if num == nfile * batch:
                         with open(file_out.replace('.json', f'-{nfile}.json'), 'w') as file:
                             json.dump(data, file)

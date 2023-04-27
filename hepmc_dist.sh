@@ -1,9 +1,11 @@
 #Script para mandar los hepmc de los runs a la carpeta correspondiente
 #!/bin/bash
 
-folder_destiny="/home/cristian/Desktop/HEP_Jones/paper_2023/scripts_2208/data/raw"
+folder_destiny="${PWD}/scripts_2208/data/raw"
 
 tipos="ZH WH TTH"
+
+mkdir -p "${folder_destiny}"
 
 for tipo in ${tipos}
 	do

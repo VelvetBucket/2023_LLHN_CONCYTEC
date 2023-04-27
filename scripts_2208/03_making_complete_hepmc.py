@@ -10,7 +10,7 @@ tevs = [13]
 
 for type in types[:]:
     for tev in tevs[:]:
-        for file_in in sorted(glob.glob(f"./data/raw/run_{type}*{tev}.hepmc"))[1:]:
+        for file_in in sorted(glob.glob(f"./data/raw/run_{type}*{tev}.hepmc"))[:1]:
             # Programming Parameters
 
             base_out = re.search(f'({type}.+)\.', file_in).group(1)

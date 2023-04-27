@@ -4,11 +4,14 @@ import re
 import glob
 import pandas as pd
 from scipy.interpolate import interp1d
-from my_funcs import isolation, get_mass_width
+from my_funcs import isolation
 from pathlib import Path
 import json
+import sys
 
-ph_eff_zo= pd.read_csv(f'./data/z0_eff_points.csv', delimiter=',', header=None).set_axis(['zorigin','eff'], axis=1)
+n_events = int(sys.argv[1])
+
+ph_eff_zo = pd.read_csv(f'./data/z0_eff_points.csv', delimiter=',', header=None).set_axis(['zorigin','eff'], axis=1)
 mu_eff_pt = pd.read_csv('./data/muon_eff_pt.csv',header=0)
 el_eff_pt = pd.read_csv('./data/electron_eff_pt.csv',header=0)
 el_eff_eta = pd.read_csv('./data/electron_eff_eta.csv',header=0)
@@ -60,9 +63,11 @@ met_bins = [0, 30, 50, np.inf]
 
 destiny_info = f'./data/clean/'
 origin = f"./data/clean/"
-destiny = f"./data/clean/"
+destiny = f"./data/matrices/"
 types = ['ZH', "WH", "TTH"]
 tevs = [13]
+
+Path(destiny).mkdir(exist_ok=True, parents=True)
 
 for tev in tevs[:]:
 
@@ -80,7 +85,7 @@ for tev in tevs[:]:
         for type in types[:]:
 
             cutflows = dict()
-            scale = scales[type + '_' + base_out]  * 1000 * 0.2 * 139 / 30000
+            scale = scales[type + '_' + base_out]  * 1000 * 0.2 * 139 / n_events
             #print(scale)
             #sys.exit()
 

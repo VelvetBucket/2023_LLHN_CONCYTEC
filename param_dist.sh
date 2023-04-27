@@ -36,12 +36,12 @@ windex="$1"
 mindex="$2"
 tindex="$3"
 filename_o="$4"
-config_path='/home/cristian/Desktop/HEP_Jones/paper_2023/HN_run_config.txt'
+config_path="${PWD}/HN_run_config.txt"
 
 tevs="13"
 
 small="  1e-12 = small_width_treatment"
-nevents="  1000 = nevents ! Number of unweighted events requested "
+nevents="  ${5} = nevents ! Number of unweighted events requested "
 ct="  0 = time_of_flight ! threshold (in mm) below which the invariant livetime is not written (-1 means not written)"
 decay="   True  = cut_decays    ! Cut decay products "
 
