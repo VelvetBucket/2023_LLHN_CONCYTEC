@@ -53,21 +53,24 @@ tevs="13"
 small="  1e-12 = small_width_treatment"
 nevents="  1000 = nevents ! Number of unweighted events requested "
 ct="  0 = time_of_flight ! threshold (in mm) below which the invariant livetime is not written (-1 means not written)"
-decay="   True  = cut_decays    ! Cut decay products "
+decay="   False  = cut_decays    ! Cut decay products "
 
 pta_min=" 0.0  = pta       ! minimum pt for the photons "
 ptl_min=" 0.0  = ptl       ! minimum pt for the charged leptons "
 ptl_min_WH=" 0.0  = ptl       ! minimum pt for the charged leptons "
-ptj_min=" 1.0  = ptj       ! minimum pt for the jets "
+ptj_min=" 0.0  = ptj       ! minimum pt for the jets "
 etaa_max=" -1.0  = etaa    ! max rap for the photons "
 etal_max=" -1.0 = etal    ! max rap for the charged leptons"
-etapdg_max=" {11: 2.5, 13: 2.7, 15: 5.0} = eta_max_pdg ! rap cut for other particles (syntax e.g. {6: 2.5, 23: 5})"
 ptcl_min=" 0.0  = xptl ! minimum pt for at least one charged lepton "
+etaj_max=" -1.0 = etaj    ! max rap for the jets "
+drjj_min=" 0.0 = drjj    ! min distance between jets "
+drjl_min=" 0.0 = drjl    ! min distance between jet and lepton "
+r0gamma="  0.0 = R0gamma ! Radius of isolation code"
 
 
 ############## WH ##################
 
-tipos="ZH WH TTH"
+tipos="TTH"
 
 for channel in ${tipos}
 	do
@@ -84,6 +87,10 @@ for channel in ${tipos}
 	changing " = etaa "  "$etaa_max"
 	changing " = etal "  "$etal_max"
 	changing " = xptl "  "$ptcl_max"
+	changing " = etaj " "$etaj_max"
+	changing " = drjj " "$drjj_min"
+	changing " = drjl " "$drjl_min"
+	changing " = R0gamma " "$r0gamma"
 	
 	run_mg5 "$channel"
 done
