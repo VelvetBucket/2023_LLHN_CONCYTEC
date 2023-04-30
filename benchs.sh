@@ -1,6 +1,5 @@
 #!/bin/bash
 
-num_events="$1"
 origin="${PWD}/param_c/param_card_VALIDATION.dat"
 destiny="${PWD}/param_c/param_card_VALIDATION1.dat"
 benches=("60 0.5 2" "50 30 2" "40 20 2" "30 0.5 2")
@@ -22,7 +21,7 @@ do
 	
 	sed -e "s/M_NLSP/${nlsp}/g" -e "s/M_LSP/${lsp}/g" -e "s/LFT_WIDTH/${width}/g" "${origin}" > "${destiny}"
 	
-	bash param_dist.sh "MN${nlsp0}" "ML${lsp1}" "T${t0}" "${destiny}" "${num_events}"
+	bash param_dist.sh "MN${nlsp0}" "ML${lsp1}" "T${t0}" "${destiny}" "$1" "$2"
 	
 done
 

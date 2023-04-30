@@ -61,7 +61,6 @@ z_bins = [0,50,100,200,300,2000.1]
 t_bins = {'1': [0,0.2,0.4,0.6,0.8,1.0,1.5,12.1], '2+': [0,0.2,0.4,0.6,0.8,1.0,12.1]}
 met_bins = [0, 30, 50, np.inf]
 
-destiny_info = f'./data/clean/'
 origin = f"./data/clean/"
 destiny = f"./data/matrices/"
 types = ['ZH', "WH", "TTH"]
@@ -86,7 +85,7 @@ for tev in tevs[:]:
 
             cutflows = dict()
             scale = scales[type + '_' + base_out]  * 1000 * 0.2 * 139 / n_events
-            #print(scale)
+            print(n_events)
             #sys.exit()
 
             print(f'RUNNING: {base_out} - {type}')

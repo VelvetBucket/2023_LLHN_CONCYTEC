@@ -10,7 +10,7 @@ mkdir -p "${folder_destiny}"
 for tipo in ${tipos}
 	do
 	#declare -a arr
-	folder_origin="/home/cristian/Programs/MG5_aMC_v2_9_2/val-HN_${tipo}/Events"
+	folder_origin="${1}/val-HN_${tipo}/Events"
 	cd ${folder_origin}
 	runs=( $(ls -d */) )
 	for run in "${runs[@]}"

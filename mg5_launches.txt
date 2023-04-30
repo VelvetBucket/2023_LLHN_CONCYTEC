@@ -4,17 +4,17 @@ define allsm = g u c d s u~ c~ d~ s~ a ve vm vt e- mu- ve~ vm~ vt~ e+ mu+ t b t~
 
 # ZH
 generate p p > h01 z , (z > l+ l-) @1 
-output /home/cristian/Programs/MG5_aMC_v2_9_2/val-HN_ZH
+output FOLDER/val-HN_ZH
 y
 
 # WH
 generate p p > h01 w+ , (w+ > l+ vl) @1 
 add process p p > h01 w- , (w- > l- vl~) @1
-output /home/cristian/Programs/MG5_aMC_v2_9_2/val-HN_WH
+output FOLDER/val-HN_WH
 y
 
 # TTH
 generate p p > h01 t t~ , ( t > w+ b, w+ > allsm allsm), ( t~ > w- b~, w- > allsm allsm) @1 
-output /home/cristian/Programs/MG5_aMC_v2_9_2/val-HN_TTH
+output FOLDER/val-HN_TTH
 y
 

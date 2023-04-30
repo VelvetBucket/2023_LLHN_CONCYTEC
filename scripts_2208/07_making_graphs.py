@@ -5,7 +5,7 @@ import re
 import json
 import numpy as np
 
-origin = f"./data/clean/"
+origin = f"./data/matrices/"
 destiny = f"./cases/"
 
 met_labels = ['BKG', 'CR', 'SR']

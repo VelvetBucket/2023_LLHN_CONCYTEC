@@ -64,7 +64,7 @@ tipos="ZH WH TTH"
 
 for channel in ${tipos}
 	do
-	folder_destiny="/home/cristian/Programs/MG5_aMC_v2_9_2/val-HN_${channel}/Cards"
+	folder_destiny="${6}/val-HN_${channel}/Cards"
 	run_path="${folder_destiny}/run_card.dat"
 	
 	changing " = small_width_treatment "  "$small"
