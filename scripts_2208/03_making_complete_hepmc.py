@@ -24,6 +24,7 @@ def main(parameters):
     new_hepmc = open(file_out, 'w')
 
     event = -1
+    sentences = ''
     for sentence in hepmc:
         zorigin = 0.0
         relt = 0.0
@@ -33,19 +34,25 @@ def main(parameters):
                 event += 1
                 if (event % 100) == 0:
                     print(f'{base_out}: Event {event}')
+                if (event % 1000) == 0:
+                    new_hepmc.write(sentences)
+                    sentences = ''
                 #print(event)
             elif line[0] == 'P':
                 pid = int(line[1])
-                if (abs(int(line[2])) == 22) and (int(line[11]) == 0) and keys.count([event, pid]) == 1:
-                    #print([event, pid])
-                    this = new_observs.loc[(event,pid)]
-                    zorigin = this.z_origin
-                    relt = this.rel_tof
+                if (abs(int(line[2])) == 22) and (int(line[11]) == 0):
+                    try:
+                        this = new_observs.loc[(event,pid)]
+                        zorigin = this.z_origin
+                        relt = this.rel_tof
+                    except KeyError:
+                        zorigin = 0.0
+                        relt = 0.0
                 line.insert(13, str(relt))
                 line.insert(13, str(zorigin))
                 sentence = ' '.join(line) + '\n'
-        new_hepmc.write(sentence)
-
+        sentences += sentence
+    new_hepmc.write(sentences)
     hepmc.close()
     new_hepmc.close()
     return
@@ -62,5 +69,6 @@ for typex in types[:]:
             allcases.append([file_inx, typex])
 
 if __name__ == '__main__':
-    with Pool() as pool:
+    with Pool(1) as pool:
+        #print(allcases[-1:])
         pool.map(main, allcases)

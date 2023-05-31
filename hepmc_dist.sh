@@ -1,7 +1,7 @@
 #Script para mandar los hepmc de los runs a la carpeta correspondiente
 #!/bin/bash
 
-folder_destiny="${PWD}/scripts_2208/data/raw"
+folder_destiny="${2}/data/raw"
 
 tipos="ZH WH TTH"
 
@@ -28,7 +28,7 @@ for tipo in ${tipos}
 		file_mc=("$(ls -d *.hepmc)")
 		echo "${file_mc}"
 		file_final="$(echo "${file_mc}" | sed 's/_pythia8_events//')"
-		cp "${file_mc}" "${folder_destiny}/run_${file_final}"	
+		mv "${file_mc}" "${folder_destiny}/run_${file_final}"	
 		cd ..
 	done
 done

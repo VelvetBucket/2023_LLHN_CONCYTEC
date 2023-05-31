@@ -19,6 +19,8 @@ function run_mg5 () {
 		
 		# Le da el tag apropiado al run
 		tag="  ${channel}_${windex}_${mindex}_${tindex}_${tev}     = run_tag ! name of the run "
+		#echo $tag
+		#exit 0
 		changing " = run_tag " "$tag"
 			
 		#Copia el param_card correspondiente
@@ -60,7 +62,7 @@ r0gamma="  0.0 = R0gamma ! Radius of isolation code"
  
 ###################
 
-tipos="ZH WH TTH"
+tipos="ZH"
 
 for channel in ${tipos}
 	do

@@ -251,7 +251,7 @@ for type in types[:]:
             )
 
 if __name__ == '__main__':
-    with Pool() as pool:
+    with Pool(1) as pool:
         pool.map(main, allcases)
 
 

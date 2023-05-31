@@ -110,9 +110,10 @@ tevs = [13]
 allcases = []
 for typex in types[:]:
     for tevx in tevs[:]:
-        for file_inx in sorted(glob.glob(origin + f"*.root"))[:]:
+        for file_inx in sorted(glob.glob(origin + f"*{typex}*{tevx}.root"))[:]:
             allcases.append(file_inx)
 
 if __name__ == '__main__':
-    with Pool() as pool:
+    print(allcases)
+    with Pool(1) as pool:
         pool.map(main, allcases)

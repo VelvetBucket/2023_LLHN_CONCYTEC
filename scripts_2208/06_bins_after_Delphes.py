@@ -57,145 +57,156 @@ def t_res(ecell):
 
     return resol
 
-def main(base_out):
+def main(variables):
 
+    type = variables[0]
+    base_out = variables[1]
+
+    #bin_matrix = dict()
+    #for key, t_bin in t_bins.items():
+    #    bin_matrix[key] = np.zeros((len(z_bins) - 1, len(t_bin) - 1, len(met_bins) - 1)).tolist()
+    #print(bin_matrix)
+    #sys.exit()
+    
     bin_matrix = dict()
     for key, t_bin in t_bins.items():
         bin_matrix[key] = np.zeros((len(z_bins) - 1, len(t_bin) - 1, len(met_bins) - 1)).tolist()
-    #print(bin_matrix)
+
+    cutflows = dict()
+    scale = scales[type + '_' + base_out] * 1000 * 0.2 * 139 / n_events
+    print(n_events)
     #sys.exit()
-    for type in types[:]:
 
-        cutflows = dict()
-        scale = scales[type + '_' + base_out] * 1000 * 0.2 * 139 / n_events
-        print(n_events)
-        #sys.exit()
+    print(f'RUNNING: {base_out} - {type}')
 
-        print(f'RUNNING: {base_out} - {type}')
+    input_file = origin + f"complete_{type}_{base_out}_photons.pickle";
+    photons = pd.read_pickle(input_file)
+    leptons = pd.read_pickle(input_file.replace('photons', 'leptons'))
+    jets = pd.read_pickle(input_file.replace('photons', 'jets'))
+    #print(photons)
+    #sys.exit()
 
-        input_file = origin + f"complete_{type}_{base_out}_photons.pickle";
-        photons = pd.read_pickle(input_file)
-        leptons = pd.read_pickle(input_file.replace('photons', 'leptons'))
-        jets = pd.read_pickle(input_file.replace('photons', 'jets'))
-        #print(photons)
-        #sys.exit()
+    if leptons.size == 0 or photons.size == 0:
+        return
+    #print(photons.shape[0])
+    ### Aplying resolutions
 
-        if leptons.size == 0 or photons.size == 0:
-            continue
-        #print(photons.shape[0])
-        ### Aplying resolutions
+    ## Z Origin
+    photons['zo_smeared'] = \
+        photons.apply(lambda row:
+                      np.abs(row['z_origin'] + zorigin_res_func(row['z_origin']) * np.random.normal(0, 1)),
+                    axis=1)
 
-        ## Z Origin
-        photons['zo_smeared'] = \
-            photons.apply(lambda row:
-                          np.abs(row['z_origin'] + zorigin_res_func(row['z_origin']) * np.random.normal(0, 1)),
-                        axis=1)
+    ## relative time of flight
+    photons['rt_smeared'] = \
+        photons.apply(lambda row: row['rel_tof'] + t_res(Ecell_factor * row['E']) * np.random.normal(0, 1), axis=1)
 
-        ## relative time of flight
-        photons['rt_smeared'] = \
-            photons.apply(lambda row: row['rel_tof'] + t_res(Ecell_factor * row['E']) * np.random.normal(0, 1), axis=1)
+    ### Applying efficiencies
 
-        ### Applying efficiencies
+    ## leptons
+    leptons.loc[(leptons.pdg==11),'eff_value'] = \
+        leptons[leptons.pdg==11].apply(lambda row:
+                                       el_normal_factor*el_pt_func(row.pt)*el_eta_func(row.eta), axis=1)
+    leptons.loc[(leptons.pdg == 13), 'eff_value'] = \
+        leptons[leptons.pdg == 13].apply(lambda row: mu_func(row.pt), axis=1)
 
-        ## leptons
-        leptons.loc[(leptons.pdg==11),'eff_value'] = \
-            leptons[leptons.pdg==11].apply(lambda row:
-                                           el_normal_factor*el_pt_func(row.pt)*el_eta_func(row.eta), axis=1)
-        leptons.loc[(leptons.pdg == 13), 'eff_value'] = \
-            leptons[leptons.pdg == 13].apply(lambda row: mu_func(row.pt), axis=1)
+    leptons['detected'] = leptons.apply(lambda row: np.random.random_sample() < row['eff_value'], axis=1)
 
-        leptons['detected'] = leptons.apply(lambda row: np.random.random_sample() < row['eff_value'], axis=1)
+    leptons = leptons[leptons.detected]
 
-        leptons = leptons[leptons.detected]
+    ## photons
+    photons['detected'] = \
+        photons.apply(lambda row: np.random.random_sample() < photon_eff_zo(row['zo_smeared']), axis=1)
+    # print(df[['zo_smeared','detected']])
 
-        ## photons
-        photons['detected'] = \
-            photons.apply(lambda row: np.random.random_sample() < photon_eff_zo(row['zo_smeared']), axis=1)
-        # print(df[['zo_smeared','detected']])
+    photons = photons[photons['detected']]
+    #print(photons.shape[0])
+    #sys.exit()
 
-        photons = photons[photons['detected']]
-        #print(photons.shape[0])
-        #sys.exit()
+    ## Overlapping
+    ### Primero electrones
+    leptons.loc[(leptons.pdg==11),'el_iso_ph'] = isolation(leptons[leptons.pdg==11],photons,'pt',same=False,dR=0.4)
+    leptons = leptons[(leptons.pdg==13)|(leptons['el_iso_ph']==0)]
 
-        ## Overlapping
-        ### Primero electrones
-        leptons.loc[(leptons.pdg==11),'el_iso_ph'] = isolation(leptons[leptons.pdg==11],photons,'pt',same=False,dR=0.4)
-        leptons = leptons[(leptons.pdg==13)|(leptons['el_iso_ph']==0)]
+    ## Luego jets
+    jets['jet_iso_ph'] = isolation(jets,photons,'pt',same=False,dR=0.4)
+    jets['jet_iso_e'] = isolation(jets, leptons[leptons.pdg==11], 'pt', same=False, dR=0.2)
+    jets = jets[jets['jet_iso_e'] + jets['jet_iso_ph']==0]
 
-        ## Luego jets
-        jets['jet_iso_ph'] = isolation(jets,photons,'pt',same=False,dR=0.4)
-        jets['jet_iso_e'] = isolation(jets, leptons[leptons.pdg==11], 'pt', same=False, dR=0.2)
-        jets = jets[jets['jet_iso_e'] + jets['jet_iso_ph']==0]
+    ## Electrones de nuevo
+    leptons.loc[(leptons.pdg == 11), 'el_iso_j'] = isolation(leptons[leptons.pdg == 11], jets, 'pt', same=False,
+                                                              dR=0.4)
+    leptons = leptons[(leptons.pdg == 13) | (leptons['el_iso_j'] == 0)]
 
-        ## Electrones de nuevo
-        leptons.loc[(leptons.pdg == 11), 'el_iso_j'] = isolation(leptons[leptons.pdg == 11], jets, 'pt', same=False,
-                                                                  dR=0.4)
-        leptons = leptons[(leptons.pdg == 13) | (leptons['el_iso_j'] == 0)]
+    ## Finalmente, muones
+    jets['jet_iso_mu'] = isolation(jets, leptons[leptons.pdg == 13], 'pt', same=False, dR=0.01)
+    jets = jets[jets['jet_iso_mu'] == 0]
 
-        ## Finalmente, muones
-        jets['jet_iso_mu'] = isolation(jets, leptons[leptons.pdg == 13], 'pt', same=False, dR=0.01)
-        jets = jets[jets['jet_iso_mu'] == 0]
-
-        leptons.loc[(leptons.pdg == 13), 'mu_iso_j'] = isolation(leptons[leptons.pdg == 13], jets, 'pt', same=False,
+    leptons.loc[(leptons.pdg == 13), 'mu_iso_j'] = isolation(leptons[leptons.pdg == 13], jets, 'pt', same=False,
                                                                  dR=0.4)
-        leptons.loc[(leptons.pdg == 13), 'mu_iso_ph'] = isolation(leptons[leptons.pdg == 13], photons, 'pt', same=False,
+    leptons.loc[(leptons.pdg == 13), 'mu_iso_ph'] = isolation(leptons[leptons.pdg == 13], photons, 'pt', same=False,
                                                                  dR=0.4)
-        leptons = leptons[(leptons.pdg == 11) | ((leptons['mu_iso_j'] + leptons['mu_iso_ph']) == 0)]
+    leptons = leptons[(leptons.pdg == 11) | ((leptons['mu_iso_j'] + leptons['mu_iso_ph']) == 0)]
 
-        ##### De ahí leptones con pt > 27
-        leptons = leptons[leptons.pt > 27]
-        #print(leptons)
+    ##### De ahí leptones con pt > 27
+    leptons = leptons[leptons.pt > 27]
+    #print(leptons)
 
-        ### Invariant mass
-        photons0 = photons.groupby(['N']).nth(0)
-        photons0['px'] = photons0.pt * np.cos(photons0.phi)
-        photons0['py'] = photons0.pt * np.sin(photons0.phi)
-        photons0['pz'] = photons0.pt / np.tan(2 * np.arctan(np.exp(photons0.eta)))
-        photons0 = photons0[['E', 'px', 'py', 'pz']]
+    ### Invariant mass
+    photons0 = photons.groupby(['N']).nth(0)
+    photons0['px'] = photons0.pt * np.cos(photons0.phi)
+    photons0['py'] = photons0.pt * np.sin(photons0.phi)
+    photons0['pz'] = photons0.pt / np.tan(2 * np.arctan(np.exp(photons0.eta)))
+    photons0 = photons0[['E', 'px', 'py', 'pz']]
 
-        leptons0 = leptons.groupby(['N']).nth(0)
-        leptons0['px'] = leptons0.pt * np.cos(leptons0.phi)
-        leptons0['py'] = leptons0.pt * np.sin(leptons0.phi)
-        leptons0['pz'] = leptons0.pt / np.tan(2 * np.arctan(np.exp(leptons0.eta)))
-        leptons0['E'] = np.sqrt(leptons0.mass**2 + leptons0.pt**2 + leptons0.pz**2)
-        leptons0 = leptons0[['E','px','py','pz','pdg']]
+    leptons0 = leptons.groupby(['N']).nth(0)
+    leptons0['px'] = leptons0.pt * np.cos(leptons0.phi)
+    leptons0['py'] = leptons0.pt * np.sin(leptons0.phi)
+    leptons0['pz'] = leptons0.pt / np.tan(2 * np.arctan(np.exp(leptons0.eta)))
+    leptons0['E'] = np.sqrt(leptons0.mass**2 + leptons0.pt**2 + leptons0.pz**2)
+    leptons0 = leptons0[['E','px','py','pz','pdg']]
 
-        final_particles = photons0.join(leptons0,how='inner',lsuffix='_ph',rsuffix='_l')
-        final_particles['M_eg'] = np.sqrt((final_particles.E_ph + final_particles.E_l) ** 2 -
-                        ((final_particles.px_ph + final_particles.px_l) ** 2 +
-                         (final_particles.py_ph + final_particles.py_l) ** 2 +
+    final_particles = photons0.join(leptons0,how='inner',lsuffix='_ph',rsuffix='_l')
+    final_particles['M_eg'] = np.sqrt((final_particles.E_ph + final_particles.E_l) ** 2 -
+                    ((final_particles.px_ph + final_particles.px_l) ** 2 +
+                     (final_particles.py_ph + final_particles.py_l) ** 2 +
                          (final_particles.pz_ph + final_particles.pz_l) ** 2))
-        final_particles = final_particles[(final_particles.pdg == 13) | (np.abs(final_particles.M_eg - m_Z) > 15)]
+    final_particles = final_particles[(final_particles.pdg == 13) | (np.abs(final_particles.M_eg - m_Z) > 15)]
 
-        photons = photons[photons.index.get_level_values(0).isin(
-                list(final_particles.index.get_level_values(0)))]
+    photons = photons[photons.index.get_level_values(0).isin(
+            list(final_particles.index.get_level_values(0)))]
 
-        ### CLaasifying in channels
-        ph_num = photons.groupby(['N']).size()
-        dfs = {'1': photons.loc[ph_num[ph_num == 1].index], '2+': photons.loc[ph_num[ph_num > 1].index]}
+    ### CLaasifying in channels
+    ph_num = photons.groupby(['N']).size()
+    dfs = {'1': photons.loc[ph_num[ph_num == 1].index], '2+': photons.loc[ph_num[ph_num > 1].index]}
 
-        for channel, phs in dfs.items():
-            ## Keeping the most energetic
-            phs = phs.groupby(['N']).nth(0)
-            ## Filtering Ecell, zorigin and reltof
-            phs = phs[(Ecell_factor * phs['E']) > 10]
-            phs = phs[phs['zo_smeared'] < 2000]
-            phs = phs[(0 < phs['rt_smeared']) & (phs['rt_smeared'] < 12)]
-            ## Classifying in bins
-            phs['z_binned'] = np.digitize(phs['zo_smeared'], z_bins) - 1
-            phs['t_binned'] = np.digitize(phs['rt_smeared'], t_bins[channel]) - 1
-            phs['met_binned'] = np.digitize(phs['MET'], met_bins) - 1
-            #print(phs[phs['z_binned'] == 5])
-            ixs, tallies = np.unique(phs[['z_binned','t_binned','met_binned']].values,
-                            return_counts=True, axis=0)
-            #print(ixs, tallies)
-            for ix, tally in zip(ixs, tallies):
-                z, t, met = ix
-                bin_matrix[channel][z][t][met] += tally * scale
+    for channel, phs in dfs.items():
+        ## Keeping the most energetic
+        phs = phs.groupby(['N']).nth(0)
+        ## Filtering Ecell, zorigin and reltof
+        phs = phs[(Ecell_factor * phs['E']) > 10]
+        phs = phs[phs['zo_smeared'] < 2000]
+        phs = phs[(0 < phs['rt_smeared']) & (phs['rt_smeared'] < 12)]
+        ## Classifying in bins
+        phs['z_binned'] = np.digitize(phs['zo_smeared'], z_bins) - 1
+        phs['t_binned'] = np.digitize(phs['rt_smeared'], t_bins[channel]) - 1
+        phs['met_binned'] = np.digitize(phs['MET'], met_bins) - 1
+        #print(phs[phs['z_binned'] == 5])
+        ixs, tallies = np.unique(phs[['z_binned','t_binned','met_binned']].values,
+                        return_counts=True, axis=0)
+        #print(ixs, tallies)
+        for ix, tally in zip(ixs, tallies):
+            z, t, met = ix
+            bin_matrix[channel][z][t][met] += tally * scale
 
-    with open(destiny + f'bin_matrices-{base_out}.json', 'w') as file:
+    with open(destiny + f'bin_matrices-{base_out}-{type}.json', 'w') as file:
         json.dump(bin_matrix, file)
+    print('Matrix saved!')
+
+    #with open(destiny + f'bin_matrices-{base_out}.json', 'w') as file:
+    #    json.dump(bin_matrix, file)
     return
+
 
 # For bin classification
 z_bins = [0,50,100,200,300,2000.1]
@@ -204,14 +215,20 @@ met_bins = [0, 30, 50, np.inf]
 
 origin = f"./data/clean/"
 destiny = f"./data/matrices/"
-types = ['ZH', "WH", "TTH"]
+types = ['ZH', 'WH', 'TTH']
 tevs = [13]
 
 Path(destiny).mkdir(exist_ok=True, parents=True)
 
-files_in = glob.glob(origin + f"complete_{types[0]}*photons.pickle")
-bases = sorted(list([re.search(f'/.*{types[0]}_(.+)_photons', x).group(1) for x in files_in]))
+bases = []
+for xx in types:
+    files_in = glob.glob(origin + f"complete_{xx}*photons.pickle")
+    #print(files_in)
+    newcases=sorted([[xx, re.search(f'/.*{xx}_(.+)_photons', x).group(1)] for x in files_in])
+    #print(newcases)
+    bases.extend(newcases)
+#print(bases)
 
 if __name__ == '__main__':
-    with Pool() as pool:
+    with Pool(1) as pool:
         pool.map(main, bases)

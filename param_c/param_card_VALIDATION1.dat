@@ -85,7 +85,7 @@ BLOCK MASS  # Mass Spectrum
    1000016     1.84708464E+05   # ~nu_tauL
    1000021     6.07713704E+05   # ~g
    1000022     5.00000000E-01   # ~chi_10
-   1000023     3.00000000E+01   # ~chi_20
+   1000023     6.00000000E+01   # ~chi_20
    1000025    -3.63756027E+05   # ~chi_30
    1000035     3.81729382E+05   # ~chi_40
    1000024     1.74738888E+05   # ~chi_1+
@@ -618,7 +618,7 @@ DECAY   1000037     3.82195474E+09   # chargino2+ decays
 DECAY   1000022     0.00000000E+00   # neutralino1 decays no decays
 
 #         PDG            Width
-DECAY   1000023     3.29106098E-16   # neutralino2 decays
+DECAY   1000023     5.59561168E-17   # neutralino2 decays
 #           BR         NDA      ID1       ID2       ID3
      1.00000000E+00    2     1000022        22   # BR(~chi_2 -> gamma ~chi_1 )
 

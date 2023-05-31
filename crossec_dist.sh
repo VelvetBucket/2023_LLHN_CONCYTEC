@@ -1,11 +1,9 @@
 #Script para mandar los hepmc de los runs a la carpeta correspondiente
 #!/bin/bash
 
-folder_destiny="${1}/scripts_2208/data/raw"
-
 tipos="ZH WH TTH"
 
-echo '' > ./scripts_2208/data/cross_section.dat
+#echo '' > ./scripts_2208/data/cross_section.dat
 
 for tipo in ${tipos}
 	do
@@ -24,7 +22,7 @@ for tipo in ${tipos}
 		cross=$(sed 's|\: |''|g' <<<"$cross")
 		file_mc="${file_mc/_banner.txt/''}"
 		file_mc="${file_mc/$run/''}"
-		echo "${file_mc}	${cross}" >> "${1}/scripts_2208/data/cross_section.dat"
+		echo "${file_mc}	${cross}" >> "${1}/data/cross_section.dat"
 		cd ..
 	done
 done
