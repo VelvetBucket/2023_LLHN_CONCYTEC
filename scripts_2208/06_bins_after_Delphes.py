@@ -9,6 +9,7 @@ from pathlib import Path
 import json
 import sys
 from multiprocessing import Pool
+#import os
 
 n_events = int(sys.argv[1])
 
@@ -71,13 +72,18 @@ def main(variables):
     bin_matrix = dict()
     for key, t_bin in t_bins.items():
         bin_matrix[key] = np.zeros((len(z_bins) - 1, len(t_bin) - 1, len(met_bins) - 1)).tolist()
+        #bin_matrix[key] = np.zeros((len(z_bins) - 1, len(t_bin) - 1, len(met_bins) - 1))
 
     cutflows = dict()
     scale = scales[type + '_' + base_out] * 1000 * 0.2 * 139 / n_events
-    print(n_events)
+    #print(n_events)
     #sys.exit()
+    #with open(destiny + f'bin_matrices-{base_out}-{type}.1.txt', 'w') as file:
+    #    file.write(scale)
+    #with open(destiny + f'bin_matrices-{base_out}-{type}.2.txt', 'w') as file:
+    #    file.write(n_events)
 
-    print(f'RUNNING: {base_out} - {type}')
+    #print(f'RUNNING: {base_out} - {type}')
 
     input_file = origin + f"complete_{type}_{base_out}_photons.pickle";
     photons = pd.read_pickle(input_file)
@@ -180,6 +186,10 @@ def main(variables):
     ph_num = photons.groupby(['N']).size()
     dfs = {'1': photons.loc[ph_num[ph_num == 1].index], '2+': photons.loc[ph_num[ph_num > 1].index]}
 
+    #print(scale)
+    #with open(destiny + f'bin_matrices-{base_out}-{type}.txt', 'w') as file:
+    #    file.write(scale)
+
     for channel, phs in dfs.items():
         ## Keeping the most energetic
         phs = phs.groupby(['N']).nth(0)
@@ -198,10 +208,17 @@ def main(variables):
         for ix, tally in zip(ixs, tallies):
             z, t, met = ix
             bin_matrix[channel][z][t][met] += tally * scale
+            #print(scale)
+
+        #np.save(destiny + f'bin_matrices-{base_out}-{type}-ch{channel}.npy', bin_matrix[channel])
+
+    #bin_matrix = {k: v.tolist() for k, v in bin_matrix.items()}
 
     with open(destiny + f'bin_matrices-{base_out}-{type}.json', 'w') as file:
         json.dump(bin_matrix, file)
-    print('Matrix saved!')
+    #print(bin_matrix)
+    #os.system(f'echo {bin_matrix}')
+    #print('Matrix saved!')
 
     #with open(destiny + f'bin_matrices-{base_out}.json', 'w') as file:
     #    json.dump(bin_matrix, file)
@@ -214,6 +231,7 @@ t_bins = {'1': [0,0.2,0.4,0.6,0.8,1.0,1.5,12.1], '2+': [0,0.2,0.4,0.6,0.8,1.0,12
 met_bins = [0, 30, 50, np.inf]
 
 origin = f"/Collider/scripts_2208/data/clean/"
+#origin = "/Collider/2023_LLHN_CONCYTEC/"
 destiny = f"./data/matrices/"
 types = ['ZH', 'WH', 'TTH']
 tevs = [13]

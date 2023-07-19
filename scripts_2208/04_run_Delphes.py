@@ -8,7 +8,7 @@ from multiprocessing import Pool
 def main(in_file):
     out_file = in_file.replace('.hepmc', '.root').replace(origin, destiny)
     os.system(f'cd {sys.argv[2]} && ./DelphesHepMC2 '
-                f'/Collider/2023_LLHN_CONCYTEC/Delphes_cards/delphes_card_LLHNscanV5.tcl {out_file} {in_file}')
+                f'/Collider/2023_LLHN_CONCYTEC/Delphes_cards/delphes_card_LLHNscanV5.tcl {out_file} {in_file} > /dev/null 2>&1')
     return
 destiny_base = './data/clean'
 types = ['ZH', "WH", "TTH"]

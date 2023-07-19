@@ -1,9 +1,8 @@
 #Script para asignar un valor de coupling the Higgs a n5 n5 en todos los param cards.
 #!/bin/bash
 
-export AWS_BATCH_JOB_ARRAY_INDEX=4
-
-echo $AWS_BATCH_JOB_ARRAY_INDEX
+#export AWS_BATCH_JOB_ARRAY_INDEX=4
+#echo $AWS_BATCH_JOB_ARRAY_INDEX
  
 madgraph_folder="/Collider/MG5_aMC_v2_9_11"
 delphes_folder="/Collider/MG5_aMC_v2_9_11/Delphes"

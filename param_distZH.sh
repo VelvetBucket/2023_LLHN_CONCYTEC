@@ -1,9 +1,8 @@
-#Script para asignar un valor de coupling the Higgs a n5 n5 en todos los param cards.
 #!/bin/bash
 
 function changing () {
 	x=$(find|grep "$1" "${run_path}")
-	sed -i "s/$x/$2/g" "${run_path}"
+	sed -i "s/$x/$2/g" "${run_path}" > /dev/null 2>&1
 	#echo "$x"
 }
 
@@ -30,9 +29,12 @@ function run_mg5 () {
 		# Correr el run
 		cd "${folder_destiny}"
 		cd ..
-		./bin/madevent "${config_path}"
+		./bin/madevent "${config_path}" > /dev/null 2>&1
 	done
 }
+
+#echo "Param_dist"
+#echo $PWD
 
 windex="$1"
 mindex="$2"
@@ -68,7 +70,7 @@ for channel in ${tipos}
 	do
 	folder_destiny="${6}/val-HN_${channel}/Cards"
 	run_path="${folder_destiny}/run_card.dat"
-	
+
 	changing " = small_width_treatment "  "$small"
 	changing " = nevents "  "$nevents"
 	changing " = time_of_flight "  "$ct"

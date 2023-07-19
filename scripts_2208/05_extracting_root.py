@@ -10,6 +10,7 @@ from multiprocessing import Pool
 def main(input_file):
 
     out_file = input_file.replace('.root','_photons.pickle')
+    #out_file = out_file.replace(origin, destiny)
 
     # Create chain of root trees
     chain = ROOT.TChain("Delphes")
@@ -29,7 +30,7 @@ def main(input_file):
     photons = []
     jets = []
     leptons = []
-    print(f"Number of Entries: {numberOfEntries}")
+    #print(f"Number of Entries: {numberOfEntries}") #Commented by JJP
     for entry in range(numberOfEntries):
         # Load selected branches with data from specified event
         treeReader.ReadEntry(entry)
@@ -79,7 +80,7 @@ def main(input_file):
     g = df.groupby('N', as_index=False).cumcount()
     df['id'] = g
     df = df.set_index(['N', 'id'])
-    print(f'{100 * df.index.unique(0).size / numberOfEntries:2f} %')
+    #print(f'{100 * df.index.unique(0).size / numberOfEntries:2f} %') #Commented by JJP
     df.to_pickle(out_file)
 
     df_jets = df_jets.sort_values(by=['N', 'pt'], ascending=[True, False])
@@ -93,16 +94,22 @@ def main(input_file):
     df_leps['id'] = g
     df_leps = df_leps.set_index(['N', 'id'])
     df_leps.to_pickle(out_file.replace('_photons', '_leptons'))
-    print(df)
+    #print(df) #Commented by JJP
     return
 
 
-print('ROOT FIRST ATTEMPT:',ROOT.gSystem.Load("libDelphes"))
-print('DELPHES CLASSES   :',ROOT.gInterpreter.Declare('#include "classes/DelphesClasses.h"'))
-print('EXRROT TREE READER:',ROOT.gInterpreter.Declare('#include "external/ExRootAnalysis/ExRootTreeReader.h"'))
+#Commented by JJP
+#print('ROOT FIRST ATTEMPT:',ROOT.gSystem.Load("libDelphes"))
+#print('DELPHES CLASSES   :',ROOT.gInterpreter.Declare('#include "classes/DelphesClasses.h"'))
+#print('EXRROT TREE READER:',ROOT.gInterpreter.Declare('#include "external/ExRootAnalysis/ExRootTreeReader.h"'))
+ROOT.gSystem.Load("libDelphes")
+ROOT.gInterpreter.Declare('#include "classes/DelphesClasses.h"')
+ROOT.gInterpreter.Declare('#include "external/ExRootAnalysis/ExRootTreeReader.h"')
+
 
 origin = f"/Collider/scripts_2208/data/clean/"
 destiny = f"/Collider/scripts_2208/data/clean/"
+#destiny = f"/Collider/2023_LLHN_CONCYTEC/"
 
 types = ['ZH', "WH", "TTH"]
 tevs = [13]
@@ -114,6 +121,6 @@ for typex in types[:]:
             allcases.append(file_inx)
 
 if __name__ == '__main__':
-    print(allcases)
+    #print(allcases) #Commented by JJP
     with Pool(1) as pool:
         pool.map(main, allcases)

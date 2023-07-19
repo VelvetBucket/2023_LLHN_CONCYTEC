@@ -1,9 +1,11 @@
 #!/bin/bash
 
 echo "crosssec"
-#echo $PWD
+echo $PWD
 
-tipos="ZH WH TTH"
+#tipos="ZH WH TTH"
+tipos="ZH"
+
 
 #echo '' > ./scripts_2208/data/cross_section.dat
 
@@ -11,7 +13,7 @@ for tipo in ${tipos}
 	do
 	#declare -a arr
 	folder_origin="${2}/val-HN_${tipo}/Events"
-	cd ${folder_origin} > /dev/null 2>&1
+	cd ${folder_origin}
 	runs=( $(ls -d */) )
 	for run in "${runs[@]}"
 		do
@@ -24,8 +26,8 @@ for tipo in ${tipos}
 		cross=$(sed 's|\: |''|g' <<<"$cross")
 		file_mc="${file_mc/_banner.txt/''}"
 		file_mc="${file_mc/$run/''}"
-		echo "${file_mc}	${cross}" > "${1}/scripts_2208/data/cross_section.dat"
+		echo "${file_mc}	${cross}" >> "${1}/scripts_2208/data/cross_section.dat"
 		cd ..
 	done
 done
-#cp ${1}/scripts_2208/data/cross_section.dat /Collider/2023_LLHN_CONCYTEC/
+cp ${1}/scripts_2208/data/cross_section.dat /Collider/2023_LLHN_CONCYTEC/

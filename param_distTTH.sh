@@ -1,9 +1,8 @@
-#Script para asignar un valor de coupling the Higgs a n5 n5 en todos los param cards.
 #!/bin/bash
 
 function changing () {
 	x=$(find|grep "$1" "${run_path}")
-	sed -i "s/$x/$2/g" "${run_path}"
+	sed -i "s/$x/$2/g" "${run_path}" > /dev/null 2>&1
 	#echo "$x"
 }
 
@@ -30,9 +29,11 @@ function run_mg5 () {
 		# Correr el run
 		cd "${folder_destiny}"
 		cd ..
-		./bin/madevent "${config_path}"
+		./bin/madevent "${config_path}" > /dev/null 2>&1
 	done
 }
+
+echo "param_dist"
 
 windex="$1"
 mindex="$2"
@@ -62,7 +63,7 @@ r0gamma="  0.0 = R0gamma ! Radius of isolation code"
  
 ###################
 
-tipos="ZH"
+tipos="TTH"
 
 for channel in ${tipos}
 	do

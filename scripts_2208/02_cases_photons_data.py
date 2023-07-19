@@ -31,7 +31,7 @@ def main(paremeters):
     files, base_out = paremeters
     for file_in in files[:]:
 
-        print(file_in)
+        #print(file_in) #Commented by JJP
         try:
             del data
         except UnboundLocalError:
@@ -39,11 +39,11 @@ def main(paremeters):
 
         with open(file_in, 'r') as file:
             data = json.load(file)
-        print(len(data.keys()))
+        #print(len(data.keys())) #Commented by JJP
 
         for event in list(data.keys())[:]:
-            if (int(event) % 500) == 0:
-                print(f'RUNNING: {base_out} - ATLAS - Event {event}')
+            #if (int(event) % 500) == 0:
+                #print(f'RUNNING: {base_out} - ATLAS - Event {event}') #Commented by JJP
             holder = data[event]
             params = holder['params']
             # Defining scaler according to parameters units
@@ -218,13 +218,13 @@ def main(paremeters):
 
                 dicts.append(info)
 
-    print(f'Detected photons in ATLAS: {counter}')
+    #print(f'Detected photons in ATLAS: {counter}') #Commented by JJP
 
     dicts = pd.DataFrame(dicts)
-    print(dicts)
+    #print(dicts) #Commented by JJP
 
     dicts.to_pickle(destiny_info+f'photon_df-{base_out}.pickle')
-    print('df saved!')
+    #print('df saved!') #Commented by JJP
     return
 
 

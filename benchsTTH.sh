@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo "Benchs"
+
 origin="${PWD}/param_c/param_card_VALIDATION.dat"
 destiny="${PWD}/param_c/param_card_VALIDATION1.dat"
 line=$(($AWS_BATCH_JOB_ARRAY_INDEX + 1))
@@ -25,8 +27,7 @@ do
 	
 	sed -e "s/M_NLSP/${nlsp}/g" -e "s/M_LSP/${lsp}/g" -e "s/LFT_WIDTH/${width}/g" "${origin}" > "${destiny}"
 	
-	bash param_dist.sh "MN${nlsp0}" "ML${lsp1}" "T${t1}" "${destiny}" "$1" "$2"
-
-        
+	bash param_distTTH.sh "MN${nlsp0}" "ML${lsp1}" "T${t1}" "${destiny}" "$1" "$2"
+	
 done
 

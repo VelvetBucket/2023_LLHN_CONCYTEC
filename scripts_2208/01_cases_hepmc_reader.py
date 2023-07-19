@@ -159,6 +159,7 @@ neutralinos = [9900016, 9900014, 9900012, 1000023]
 neutrinos = [12, 14, 16, 1000022]
 
 destiny = "/Collider/scripts_2208/data/clean/"
+#destiny = "/Collider/2023_LLHN_CONCYTEC/"
 types = ["ZH","WH","TTH"]
 tevs = [13]
 

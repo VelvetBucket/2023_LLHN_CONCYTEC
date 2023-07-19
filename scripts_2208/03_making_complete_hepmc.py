@@ -13,7 +13,7 @@ def main(parameters):
     base_out = re.search(f'({type}.+)\.', file_in).group(1)
     file_out = destiny + f'complete_{base_out}.hepmc'
 
-    print(f'\nRUNNING: {base_out}')
+    #print(f'\nRUNNING: {base_out}') #Commented by JJP
 
     new_observs = pd.read_pickle(f'/Collider/scripts_2208/data/clean/photon_df-{base_out}.pickle')
 
@@ -32,8 +32,8 @@ def main(parameters):
         if len(line) > 0:
             if line[0] == 'E':
                 event += 1
-                if (event % 100) == 0:
-                    print(f'{base_out}: Event {event}')
+                #if (event % 100) == 0:
+                #    print(f'{base_out}: Event {event}')
                 if (event % 1000) == 0:
                     new_hepmc.write(sentences)
                     sentences = ''
