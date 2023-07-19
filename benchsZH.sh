@@ -3,32 +3,28 @@
 #echo "In benchs"
 #echo $PWD
 
-origin="${PWD}/param_c/param_card_VALIDATION.dat"
-destiny="${PWD}/param_c/param_card_VALIDATION1.dat"
 line=$(($AWS_BATCH_JOB_ARRAY_INDEX + 1))
+#line=2
 benches=()
 benches+=$(sed "$line!d" benchmarks.txt)
-const=6.58212196173*10^-16
 
 for vars in "${benches[@]}"
 do
-	#echo $vars
-	IFS=" " read -r -a array <<< "$vars"
+	origin="${PWD}/${vars}"
+	#echo $origin
 	
-	nlsp0=${array[0]}
-	nlsp=$(awk "BEGIN {printf \"%.8E\n\", $nlsp0}" )
-	
-	lsp0=${array[1]}
-	lsp1="${lsp0/./,}"
-	lsp=$(awk "BEGIN {printf \"%.8E\n\", $lsp0}" )
-	
-	t0=${array[2]}
-	t1="${t0/./,}"
-	width=$(awk "BEGIN {printf \"%.8E\n\", $const/$t0}" )
+	ids=$(sed 's|.dat|''|g' <<< "$vars")
+	ids=$(sed 's|param_c/param_card.SeesawSM|''|g' <<< "$ids")
+	echo $ids
 
-	sed -e "s/M_NLSP/${nlsp}/g" -e "s/M_LSP/${lsp}/g" -e "s/LFT_WIDTH/${width}/g" "${origin}" > "${destiny}"
+	IFS="." read -r -a array <<< "$ids"
+	
+	mass=${array[0]}
+	alpha=${array[1]}
 
-	bash param_distZH.sh "MN${nlsp0}" "ML${lsp1}" "T${t1}" "${destiny}" "$1" "$2"
+	#echo "$mass $alpha"
+
+	bash param_distZH.sh "" "${mass}" "${alpha}" "${origin}" "$1" "$2"
 
 done
 

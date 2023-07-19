@@ -17,7 +17,7 @@ function run_mg5 () {
 		changing " = ebeam2 " "$beam2"
 		
 		# Le da el tag apropiado al run
-		tag="  ${channel}_${windex}_${mindex}_${tindex}_${tev}     = run_tag ! name of the run "
+		tag="  ${channel}_${mindex}_${aindex}_${tev}     = run_tag ! name of the run "
 		#echo $tag
 		#exit 0
 		changing " = run_tag " "$tag"
@@ -36,9 +36,8 @@ function run_mg5 () {
 #echo "Param_dist"
 #echo $PWD
 
-windex="$1"
 mindex="$2"
-tindex="$3"
+aindex="$3"
 filename_o="$4"
 config_path="${PWD}/HN_run_config.txt"
 

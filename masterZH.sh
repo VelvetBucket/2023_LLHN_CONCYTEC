@@ -1,7 +1,7 @@
 #!/bin/bash
 
-cd 2023_LLHN_CONCYTEC
-$SHELL
+#cd 2023_LLHN_CONCYTEC
+#$SHELL
 
 x1=100000
 
@@ -14,15 +14,15 @@ sed -i 's+nb_core = 4+nb_core = 1+' ${madgraph_folder}/input/mg5_configuration.t
 
 sed "s|FOLDER|$madgraph_folder|g" mg5_launches.txt > mg5_launches_proper.txt
 
-${madgraph_folder}/bin/mg5_aMC mg5_launches_proper.txt  > /dev/null 2>&1
+#${madgraph_folder}/bin/mg5_aMC mg5_launches_proper.txt  
 
 bash benchsZH.sh "$x1" "$madgraph_folder"
-bash hepmc_dist.sh "$madgraph_folder" "$destiny_folder"
-bash crossec_dist.sh "$destiny_folder" "$madgraph_folder"
+#bash hepmc_dist.sh "$madgraph_folder" "$destiny_folder"
+#bash crossec_dist.sh "$destiny_folder" "$madgraph_folder"
 
-source ~/.bashrc
+#source ~/.bashrc
 
-cd ./scripts_2208/
+#cd ./scripts_2208/
 #echo $PYTHONPATH
-bash analysis_master.sh "$x1" "$delphes_folder"  "$destiny_folder"
-#echo "Done!"
+#bash analysis_master.sh "$x1" "$delphes_folder"  "$destiny_folder"
+echo "Done!"
