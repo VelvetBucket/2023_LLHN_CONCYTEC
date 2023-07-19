@@ -15,7 +15,7 @@ def main(parameters):
 
     print(f'\nRUNNING: {base_out}')
 
-    new_observs = pd.read_pickle(f'./data/clean/photon_df-{base_out}.pickle')
+    new_observs = pd.read_pickle(f'/Collider/scripts_2208/data/clean/photon_df-{base_out}.pickle')
 
     keys = new_observs[['Event','pid']].values.tolist()
     new_observs = new_observs.set_index(['Event','pid'])
@@ -58,14 +58,14 @@ def main(parameters):
     return
 
 
-destiny = "./data/raw/"
+destiny = "/Collider/scripts_2208/data/raw/"
 types = ["ZH","WH","TTH"]
 tevs = [13]
 
 allcases = []
 for typex in types[:]:
     for tevx in tevs[:]:
-        for file_inx in sorted(glob.glob(f"./data/raw/run_{typex}*{tevx}.hepmc"))[:]:
+        for file_inx in sorted(glob.glob(f"/Collider/scripts_2208/data/raw/run_{typex}*{tevx}.hepmc"))[:]:
             allcases.append([file_inx, typex])
 
 if __name__ == '__main__':

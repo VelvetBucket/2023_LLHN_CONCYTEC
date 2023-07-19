@@ -20,7 +20,7 @@ zorigin_res= pd.read_csv(f'./data/z0_res_points.csv', delimiter=',', header=None
 reltof_res= pd.read_csv(f'./data/z0_res_points.csv', delimiter=',', header=None).set_axis(['zorigin','res'], axis=1)
 cutflow_path = "./data/clean/cutflow/"
 
-scales = pd.read_csv("./data/cross_section.dat",delimiter="\t",index_col=0,header=None,squeeze=True)
+scales = pd.read_csv("/Collider/scripts_2208/data/cross_section.dat",delimiter="\t",index_col=0,header=None,squeeze=True)
 
 np.random.seed(0)
 
@@ -213,7 +213,7 @@ z_bins = [0,50,100,200,300,2000.1]
 t_bins = {'1': [0,0.2,0.4,0.6,0.8,1.0,1.5,12.1], '2+': [0,0.2,0.4,0.6,0.8,1.0,12.1]}
 met_bins = [0, 30, 50, np.inf]
 
-origin = f"./data/clean/"
+origin = f"/Collider/scripts_2208/data/clean/"
 destiny = f"./data/matrices/"
 types = ['ZH', 'WH', 'TTH']
 tevs = [13]

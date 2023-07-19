@@ -158,7 +158,7 @@ def main(parameters):
 neutralinos = [9900016, 9900014, 9900012, 1000023]
 neutrinos = [12, 14, 16, 1000022]
 
-destiny = "./data/clean/"
+destiny = "/Collider/scripts_2208/data/clean/"
 types = ["ZH","WH","TTH"]
 tevs = [13]
 
@@ -167,7 +167,7 @@ Path(destiny).mkdir(exist_ok=True, parents=True)
 allcases = []
 for typex in types[:]:
     for tevx in tevs[:]:
-        for file_inx in sorted(glob.glob(f"./data/raw/run_{typex}*{tevx}.hepmc"))[:]:
+        for file_inx in sorted(glob.glob(f"/Collider/scripts_2208/data/raw/run_{typex}*{tevx}.hepmc"))[:]:
             allcases.append([file_inx, typex])
 
 if __name__ == '__main__':

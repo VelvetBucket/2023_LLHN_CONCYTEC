@@ -1,7 +1,7 @@
 #Script para mandar los hepmc de los runs a la carpeta correspondiente
 #!/bin/bash
 
-folder_destiny="${2}/data/raw"
+folder_destiny="${2}/scripts_2208/data/raw"
 
 tipos="ZH WH TTH"
 

@@ -101,8 +101,8 @@ print('ROOT FIRST ATTEMPT:',ROOT.gSystem.Load("libDelphes"))
 print('DELPHES CLASSES   :',ROOT.gInterpreter.Declare('#include "classes/DelphesClasses.h"'))
 print('EXRROT TREE READER:',ROOT.gInterpreter.Declare('#include "external/ExRootAnalysis/ExRootTreeReader.h"'))
 
-origin = f"./data/clean/"
-destiny = f"./data/clean/"
+origin = f"/Collider/scripts_2208/data/clean/"
+destiny = f"/Collider/scripts_2208/data/clean/"
 
 types = ['ZH', "WH", "TTH"]
 tevs = [13]

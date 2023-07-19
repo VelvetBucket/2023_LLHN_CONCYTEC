@@ -1,7 +1,7 @@
 #Script para asignar un valor de coupling the Higgs a n5 n5 en todos los param cards.
 #!/bin/bash
 
-export AWS_BATCH_JOB_ARRAY_INDEX=12
+export AWS_BATCH_JOB_ARRAY_INDEX=4
 
 echo $AWS_BATCH_JOB_ARRAY_INDEX
  

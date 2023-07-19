@@ -237,17 +237,17 @@ c_speed = 299792458	#m/s
 
 types = ["ZH","WH","TTH"]
 tevs = [13]
-destiny_info = './data/clean/'
+destiny_info = '/Collider/scripts_2208/data/clean/'
 
 allcases = []
 for type in types[:]:
     for tev in tevs[:]:
         mwpairs = set(re.search(f'({type}.+)\-', x).group(1) for x in
-                      glob.glob(f'./data/clean/recollection_photons-{type}*{tev}-*.json'))
+                      glob.glob(f'/Collider/scripts_2208/data/clean/recollection_photons-{type}*{tev}-*.json'))
 
         for base_out in sorted(list(mwpairs))[:]:
             allcases.append(
-                [sorted(glob.glob(f'./data/clean/recollection_photons-{base_out}-*.json')),base_out]
+                [sorted(glob.glob(f'/Collider/scripts_2208/data/clean/recollection_photons-{base_out}-*.json')),base_out]
             )
 
 if __name__ == '__main__':
