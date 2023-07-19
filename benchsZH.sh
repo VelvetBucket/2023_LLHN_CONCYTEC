@@ -24,7 +24,7 @@ do
 
 	#echo "$mass $alpha"
 
-	bash param_distZH.sh "" "${mass}" "${alpha}" "${origin}" "$1" "$2"
+	bash param_distZH.sh "" "M${mass}" "Alpha${alpha}" "${origin}" "$1" "$2"
 
 done
 
