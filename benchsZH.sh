@@ -3,8 +3,8 @@
 #echo "In benchs"
 #echo $PWD
 
-line=$(($AWS_BATCH_JOB_ARRAY_INDEX + 1))
-#line=2
+#line=$(($AWS_BATCH_JOB_ARRAY_INDEX + 1))
+line=2
 benches=()
 benches+=$(sed "$line!d" benchmarks.txt)
 
@@ -12,7 +12,13 @@ for vars in "${benches[@]}"
 do
 	origin="${PWD}/${vars}"
 	#echo $origin
+
+	x=$(find|grep "# gNh55" "${origin}") 	
+	sed -i "s/$x/  4 0e00  # gNh55/" "${origin}"
 	
+	x=$(find|grep "# gNh56" "${origin}")
+        sed -i "s/$x/  5 2.000000e-1  # gNh56/" "${origin}"
+
 	ids=$(sed 's|.dat|''|g' <<< "$vars")
 	ids=$(sed 's|param_c/param_card.SeesawSM|''|g' <<< "$ids")
 	echo $ids

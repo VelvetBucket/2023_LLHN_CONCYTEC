@@ -1,20 +1,20 @@
 # SETTING VARS
-import model MSSM_SLHA2-no_tau_mass
-define allsm = g u c d s u~ c~ d~ s~ a ve vm vt e- mu- ve~ vm~ vt~ e+ mu+ t b t~ b~ z w+ h01 w- ta- ta+
+import model heavyNeff4_UFO --modelname
+define allsm = g u c d s u~ c~ d~ s~ a ve vm vt e- mu- e+ mu+ t b t~ b~ z w+ h w- ta- ta+
 
 # ZH
-generate p p > h01 z , (z > l+ l-) @1 
+generate p p > h z , (z > l+ l-), (h > n5 n6), (n6 > a n5, n5 > a vl), (n5 > a vl) @1 
 output FOLDER/val-HN_ZH
 y
 
 # WH
-generate p p > h01 w+ , (w+ > l+ vl) @1 
-add process p p > h01 w- , (w- > l- vl~) @1
+generate p p > h w+ , (w+ > l+ vl), (h > n5 n6), (n6 > a n5, n5 > a vl), (n5 > a vl) @1 
+add process p p > h w- , (w- > l- vl), (h > n5 n6), (n6 > a n5, n5 > a vl), (n5 > a vl) @1
 output FOLDER/val-HN_WH
 y
 
 # TTH
-generate p p > h01 t t~ , ( t > w+ b, w+ > allsm allsm), ( t~ > w- b~, w- > allsm allsm) @1 
+generate p p > h t t~ , ( t > w+ b, w+ > allsm allsm), ( t~ > w- b~, w- > allsm allsm), (h > n5 n6), (n6 > a n5, n5 > a vl), (n5 > a vl) @1 
 output FOLDER/val-HN_TTH
 y
 

@@ -9,10 +9,6 @@ l = {8: 20.3,13: 139} #fb-1
 br_nn = 0.21
 br_np = {8: {50: 0.719,30: 0.935,10: 0.960}, 13:{50: 0.799, 30: 0.938, 10: 0.960}}
 
-widths = pd.read_csv('../widths.txt', sep='\s',index_col = 0, header = None, engine='python', squeeze=True)
-masses = pd.read_csv('../masses.txt', sep='\s',index_col = 0, header = None, engine='python', squeeze=True)
-
-
 def isolation(phs, surr, obs, same=False, dR=0.2):
     phs_list = []
     for ix in phs.index.get_level_values(0).unique()[:]:
@@ -34,12 +30,6 @@ def isolation(phs, surr, obs, same=False, dR=0.2):
             phs_list.extend([0]*len(event_ph))
 
     return phs_list
-
-def get_mass_width(base_out):
-    m = re.search(f'(M\d+?)\_', base_out).group(1)
-    w = re.search(f'(W\d+?)\_', base_out).group(1)
-
-    return {'M': masses[m], 'W':widths[w]}
 
 def my_arctan(y,x):
 
