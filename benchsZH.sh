@@ -2,9 +2,8 @@
 
 #echo "In benchs"
 #echo $PWD
-
-#line=$(($AWS_BATCH_JOB_ARRAY_INDEX + 1))
-line=2
+line=$(($AWS_BATCH_JOB_ARRAY_INDEX + 1))
+#line=2
 benches=()
 benches+=$(sed "$line!d" benchmarks.txt)
 
