@@ -29,7 +29,7 @@ function run_mg5 () {
 		# Correr el run
 		cd "${folder_destiny}"
 		cd ..
-		./bin/madevent "${config_path}" > /dev/null 2>&1
+		./bin/madevent "${config_path}" #> /dev/null 2>&1
 	done
 }
 
@@ -63,7 +63,7 @@ r0gamma="  0.0 = R0gamma ! Radius of isolation code"
  
 ###################
 
-tipos="ZH"
+tipos="ZH WH TTH"
 
 for channel in ${tipos}
 	do

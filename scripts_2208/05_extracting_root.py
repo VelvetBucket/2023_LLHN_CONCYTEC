@@ -122,5 +122,5 @@ for typex in types[:]:
 
 if __name__ == '__main__':
     #print(allcases) #Commented by JJP
-    with Pool(1) as pool:
+    with Pool(10) as pool:
         pool.map(main, allcases)

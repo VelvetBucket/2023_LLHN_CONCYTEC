@@ -45,6 +45,7 @@ def main(parameters):
                         this = new_observs.loc[(event,pid)]
                         zorigin = this.z_origin
                         relt = this.rel_tof
+                        #new_observs = new_observs.drop(index = (event,pid))
                     except KeyError:
                         zorigin = 0.0
                         relt = 0.0
@@ -69,6 +70,6 @@ for typex in types[:]:
             allcases.append([file_inx, typex])
 
 if __name__ == '__main__':
-    with Pool(1) as pool:
+    with Pool(10) as pool:
         #print(allcases[-1:])
         pool.map(main, allcases)

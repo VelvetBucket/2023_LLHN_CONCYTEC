@@ -3,11 +3,10 @@
 echo "crosssec"
 echo $PWD
 
-#tipos="ZH WH TTH"
-tipos="ZH"
+tipos="ZH WH TTH"
+#tipos="ZH"
 
-
-#echo '' > ./scripts_2208/data/cross_section.dat
+echo '' > "${1}/scripts_2208/data/cross_section.dat"
 
 for tipo in ${tipos}
 	do

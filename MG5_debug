@@ -1,0 +1,143 @@
+#************************************************************
+#*                     MadGraph5_aMC@NLO                    *
+#*                                                          *
+#*                *                       *                 *
+#*                  *        * *        *                   *
+#*                    * * * * 5 * * * *                     *
+#*                  *        * *        *                   *
+#*                *                       *                 *
+#*                                                          *
+#*                                                          *
+#*         VERSION 2.9.11                2022-06-03         *
+#*                                                          *
+#*    The MadGraph5_aMC@NLO Development Team - Find us at   *
+#*    https://server06.fynu.ucl.ac.be/projects/madgraph     *
+#*                                                          *
+#************************************************************
+#*                                                          *
+#*               Command File for MadGraph5_aMC@NLO         *
+#*                                                          *
+#*     run as ./bin/mg5_aMC  filename                       *
+#*                                                          *
+#************************************************************
+set group_subprocesses Auto
+set ignore_six_quark_processes False
+set low_mem_multicore_nlo_generation False
+set complex_mass_scheme False
+set gauge unitary
+set loop_optimized_output True
+set loop_color_flows False
+set max_npoint_for_channel 0
+set default_unset_couplings 99
+set max_t_for_channel 99
+set zerowidth_tchannel True
+import model heavyNeff4_UFO --modelname
+define p = g u c d s u~ c~ d~ s~
+define j = g u c d s u~ c~ d~ s~
+define l+ = e+ mu+
+define l- = e- mu-
+define vl = ve vm vt
+define p = 21 2 4 1 3 -2 -4 -1 -3 5 -5 # pass to 5 flavors
+define j = p
+define allsm = g u c d s u~ c~ d~ s~ a ve vm vt e- mu- e+ mu+ t b t~ b~ z w+ h w- ta- ta+
+generate p p > h t t~ , ( t > w+ b, w+ > allsm allsm), ( t~ > w- b~, w- > allsm allsm), (h > n5 n6, (n6 > a n5, n5 > a vl), (n5 > a vl)) @1
+output /Collider/MG5_aMC_v2_9_11/val-HN_TTH
+Traceback (most recent call last):
+  File "/Collider/MG5_aMC_v2_9_11/madgraph/interface/extended_cmd.py", line 1541, in onecmd
+    return self.onecmd_orig(line, **opt)
+  File "/Collider/MG5_aMC_v2_9_11/madgraph/interface/extended_cmd.py", line 1490, in onecmd_orig
+    return func(arg, **opt)
+  File "/Collider/MG5_aMC_v2_9_11/madgraph/interface/master_interface.py", line 281, in do_import
+    self.cmd.do_import(self, *args, **opts)
+  File "/Collider/MG5_aMC_v2_9_11/madgraph/interface/madgraph_interface.py", line 5587, in do_import
+    self.import_command_file(args[1])
+  File "/Collider/MG5_aMC_v2_9_11/madgraph/interface/extended_cmd.py", line 1689, in import_command_file
+    self.exec_cmd(line, precmd=True)
+  File "/Collider/MG5_aMC_v2_9_11/madgraph/interface/extended_cmd.py", line 1570, in exec_cmd
+    stop = Cmd.onecmd_orig(current_interface, line, **opt)
+  File "/Collider/MG5_aMC_v2_9_11/madgraph/interface/extended_cmd.py", line 1490, in onecmd_orig
+    return func(arg, **opt)
+  File "/Collider/MG5_aMC_v2_9_11/madgraph/interface/master_interface.py", line 299, in do_output
+    self.cmd.do_output(self, line, *args, **opts)
+  File "/Collider/MG5_aMC_v2_9_11/madgraph/interface/madgraph_interface.py", line 8076, in do_output
+    self.export(nojpeg, main_file_name, group_processes, args)
+  File "/Collider/MG5_aMC_v2_9_11/madgraph/interface/master_interface.py", line 313, in export
+    return self.cmd.export(self, *args, **opts)
+  File "/Collider/MG5_aMC_v2_9_11/madgraph/interface/madgraph_interface.py", line 8219, in export
+    calls += self._curr_exporter.export_processes(self._curr_matrix_elements,
+  File "/Collider/MG5_aMC_v2_9_11/madgraph/iolibs/export_v4.py", line 199, in export_processes
+    calls = calls + self.generate_subprocess_directory(\
+  File "/Collider/MG5_aMC_v2_9_11/madgraph/iolibs/export_v4.py", line 5673, in generate_subprocess_directory
+    writer = writers.FortranWriter(filename)
+  File "/Collider/MG5_aMC_v2_9_11/madgraph/iolibs/file_writers.py", line 57, in __init__
+    return super(FileWriter, self).__init__(name, opt)
+FileNotFoundError: [Errno 2] No such file or directory: 'matrix19_orig.f'
+Related File: matrix19_orig.f
+                          MadGraph5_aMC@NLO Options    
+                          ----------------    
+                auto_update 	:	7
+        complex_mass_scheme 	:	False
+    default_unset_couplings 	:	99
+                      gauge 	:	unitary
+         group_subprocesses 	:	Auto
+  ignore_six_quark_processes 	:	False
+           loop_color_flows 	:	False
+      loop_optimized_output 	:	True
+  low_mem_multicore_nlo_generation 	:	False
+     max_npoint_for_channel 	:	0
+          max_t_for_channel 	:	99
+               stdout_level 	:	20 (user set)
+         zerowidth_tchannel 	:	True
+
+                         MadEvent Options    
+                          ----------------    
+     automatic_html_opening 	:	False (user set)
+                    nb_core 	:	4 (user set)
+        notification_center 	:	True
+                   run_mode 	:	2
+
+                      Configuration Options    
+                      ---------------------    
+                        OLP 	:	MadLoop
+                    amcfast 	:	amcfast-config
+                   applgrid 	:	applgrid-config
+         auto_convert_model 	:	False
+         cluster_local_path 	:	None
+           cluster_nb_retry 	:	1
+              cluster_queue 	:	None (user set)
+         cluster_retry_wait 	:	300
+               cluster_size 	:	100
+      cluster_status_update 	:	(600, 30)
+          cluster_temp_path 	:	None
+               cluster_type 	:	condor
+                    collier 	:	./HEPTools/lib
+               cpp_compiler 	:	None
+             crash_on_error 	:	False
+               delphes_path 	:	./Delphes
+                 eps_viewer 	:	None
+        exrootanalysis_path 	:	./ExRootAnalysis
+              f2py_compiler 	:	None
+          f2py_compiler_py2 	:	None
+          f2py_compiler_py3 	:	None
+                    fastjet 	:	/Collider/fastjet/bin/fastjet-config (user set)
+           fortran_compiler 	:	None
+                      golem 	:	None (user set)
+                 hepmc_path 	:	None (user set)
+                  hwpp_path 	:	None (user set)
+                     lhapdf 	:	/Collider/LHAPDF/bin/lhapdf-config (user set)
+                 lhapdf_py2 	:	None
+                 lhapdf_py3 	:	None
+          madanalysis5_path 	:	None (user set)
+           madanalysis_path 	:	./MadAnalysis
+  mg5amc_py8_interface_path 	:	/Collider/MG5_aMC_v2_9_11/HEPTools/MG5aMC_PY8_interface (user set)
+                      ninja 	:	./HEPTools/lib
+        output_dependencies 	:	external
+            pythia-pgs_path 	:	./pythia-pgs
+               pythia8_path 	:	/Collider/MG5_aMC_v2_9_11/HEPTools/pythia8 (user set)
+                    samurai 	:	None
+               syscalc_path 	:	./SysCalc
+                    td_path 	:	./td
+                text_editor 	:	None
+                thepeg_path 	:	None (user set)
+                    timeout 	:	60
+                web_browser 	:	None

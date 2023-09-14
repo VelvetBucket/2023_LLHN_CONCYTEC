@@ -28,7 +28,7 @@ for typex in types[:]:
             allcases.append(file_inx)
 
 if __name__ == '__main__':
-    with Pool(1) as pool:
+    with Pool(10) as pool:
         pool.map(main, allcases)
 
 
