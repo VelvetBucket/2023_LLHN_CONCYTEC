@@ -1,0 +1,7 @@
+param_cards-2/param_card.SeesawSM10.1,5.dat
+param_cards-2/param_card.SeesawSM10.2,5.dat
+param_cards-2/param_card.SeesawSM10.3,5.dat
+param_cards-2/param_card.SeesawSM10.4,5.dat
+param_cards-2/param_card.SeesawSM10.5,5.dat
+param_cards-2/param_card.SeesawSM10.6,5.dat
+param_cards-2/param_card.SeesawSM10.7,5.dat

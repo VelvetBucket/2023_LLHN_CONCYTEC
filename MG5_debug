@@ -40,8 +40,35 @@ define vl = ve vm vt
 define p = 21 2 4 1 3 -2 -4 -1 -3 5 -5 # pass to 5 flavors
 define j = p
 define allsm = g u c d s u~ c~ d~ s~ a ve vm vt e- mu- e+ mu+ t b t~ b~ z w+ h w- ta- ta+
-generate p p > h t t~ , ( t > w+ b, w+ > allsm allsm), ( t~ > w- b~, w- > allsm allsm), (h > n5 n6, (n6 > a n5, n5 > a vl), (n5 > a vl)) @1
+generate p p > h t t~ QCD=2 QED=1, ( t > w+ b), ( t~ > w- b~), (h > n5 n6) @1
 output /Collider/MG5_aMC_v2_9_11/val-HN_TTH
+Traceback (most recent call last):
+  File "/usr/lib64/python3.9/shutil.py", line 815, in move
+    os.rename(src, real_dst)
+FileNotFoundError: [Errno 2] No such file or directory: '/Collider/MG5_aMC_v2_9_11/val-HN_TTH/Source/MODEL/param_card.dat' -> '/Collider/MG5_aMC_v2_9_11/val-HN_TTH/Cards/param_card_default.dat'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Collider/MG5_aMC_v2_9_11/madgraph/iolibs/files.py", line 186, in mv
+    shutil.move(path1, path2)
+  File "/usr/lib64/python3.9/shutil.py", line 835, in move
+    copy_function(src, real_dst)
+  File "/usr/lib64/python3.9/shutil.py", line 444, in copy2
+    copyfile(src, dst, follow_symlinks=follow_symlinks)
+  File "/usr/lib64/python3.9/shutil.py", line 264, in copyfile
+    with open(src, 'rb') as fsrc:
+FileNotFoundError: [Errno 2] No such file or directory: '/Collider/MG5_aMC_v2_9_11/val-HN_TTH/Source/MODEL/param_card.dat'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/lib64/python3.9/shutil.py", line 815, in move
+    os.rename(src, real_dst)
+FileNotFoundError: [Errno 2] No such file or directory: '/Collider/MG5_aMC_v2_9_11/val-HN_TTH/Source/MODEL/param_card.dat' -> '/Collider/MG5_aMC_v2_9_11/val-HN_TTH/Cards/param_card_default.dat'
+
+During handling of the above exception, another exception occurred:
+
 Traceback (most recent call last):
   File "/Collider/MG5_aMC_v2_9_11/madgraph/interface/extended_cmd.py", line 1541, in onecmd
     return self.onecmd_orig(line, **opt)
@@ -59,20 +86,26 @@ Traceback (most recent call last):
     return func(arg, **opt)
   File "/Collider/MG5_aMC_v2_9_11/madgraph/interface/master_interface.py", line 299, in do_output
     self.cmd.do_output(self, line, *args, **opts)
-  File "/Collider/MG5_aMC_v2_9_11/madgraph/interface/madgraph_interface.py", line 8076, in do_output
-    self.export(nojpeg, main_file_name, group_processes, args)
-  File "/Collider/MG5_aMC_v2_9_11/madgraph/interface/master_interface.py", line 313, in export
-    return self.cmd.export(self, *args, **opts)
-  File "/Collider/MG5_aMC_v2_9_11/madgraph/interface/madgraph_interface.py", line 8219, in export
-    calls += self._curr_exporter.export_processes(self._curr_matrix_elements,
-  File "/Collider/MG5_aMC_v2_9_11/madgraph/iolibs/export_v4.py", line 199, in export_processes
-    calls = calls + self.generate_subprocess_directory(\
-  File "/Collider/MG5_aMC_v2_9_11/madgraph/iolibs/export_v4.py", line 5673, in generate_subprocess_directory
-    writer = writers.FortranWriter(filename)
-  File "/Collider/MG5_aMC_v2_9_11/madgraph/iolibs/file_writers.py", line 57, in __init__
-    return super(FileWriter, self).__init__(name, opt)
-FileNotFoundError: [Errno 2] No such file or directory: 'matrix19_orig.f'
-Related File: matrix19_orig.f
+  File "/Collider/MG5_aMC_v2_9_11/madgraph/interface/madgraph_interface.py", line 8079, in do_output
+    self.finalize(nojpeg, flaglist=flaglist)
+  File "/Collider/MG5_aMC_v2_9_11/madgraph/interface/madgraph_interface.py", line 8377, in finalize
+    self._curr_exporter.convert_model(self._curr_model,
+  File "/Collider/MG5_aMC_v2_9_11/madgraph/iolibs/export_v4.py", line 3850, in convert_model
+    super(ProcessExporterFortranME,self).convert_model(model,
+  File "/Collider/MG5_aMC_v2_9_11/madgraph/iolibs/export_v4.py", line 942, in convert_model
+    self.make_model_symbolic_link()
+  File "/Collider/MG5_aMC_v2_9_11/madgraph/iolibs/export_v4.py", line 590, in make_model_symbolic_link
+    mv(model_path + '/param_card.dat', self.dir_path + '/Cards/param_card_default.dat')
+  File "/Collider/MG5_aMC_v2_9_11/madgraph/iolibs/files.py", line 191, in mv
+    shutil.move(path1, path2)
+  File "/usr/lib64/python3.9/shutil.py", line 835, in move
+    copy_function(src, real_dst)
+  File "/usr/lib64/python3.9/shutil.py", line 444, in copy2
+    copyfile(src, dst, follow_symlinks=follow_symlinks)
+  File "/usr/lib64/python3.9/shutil.py", line 264, in copyfile
+    with open(src, 'rb') as fsrc:
+FileNotFoundError: [Errno 2] No such file or directory: '/Collider/MG5_aMC_v2_9_11/val-HN_TTH/Source/MODEL/param_card.dat'
+Related File: /Collider/MG5_aMC_v2_9_11/val-HN_TTH/Source/MODEL/param_card.dat
                           MadGraph5_aMC@NLO Options    
                           ----------------    
                 auto_update 	:	7

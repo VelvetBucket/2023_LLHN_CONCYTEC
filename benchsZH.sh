@@ -8,7 +8,7 @@ line=1
 
 benches=()
 #benches+=$(sed "$line!d" benchmarks.txt)
-benches1=$(sed -n '70,+0p' benchmarks.txt)
+benches1=$(sed -n '131,+8p' benchmarksX.txt)
 IFS=$'\n' benches=( $benches1 )
 
 for vars in "${benches[@]}"
@@ -16,8 +16,8 @@ do
 	origin="${PWD}/${vars}"
 	echo $origin
 
-	x=$(find|grep "# gNh55" "${origin}") 	
-	sed -i "s/$x/  4 0e00  # gNh55/" "${origin}"
+	#x=$(find|grep "# gNh55" "${origin}") 	
+	#sed -i "s/$x/  4 0e00  # gNh55/" "${origin}"
 	
 	#x=$(find|grep "# gNh56" "${origin}")
         #sed -i "s/$x/  5 2.000000e-1  # gNh56/" "${origin}"

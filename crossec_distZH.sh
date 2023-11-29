@@ -26,7 +26,8 @@ for tipo in ${tipos}
 		file_mc="${file_mc/_banner.txt/''}"
 		file_mc="${file_mc/$run/''}"
 		echo "${file_mc}	${cross}" >> "${1}/scripts_2208/data/cross_section.dat"
+		echo "${file_mc}        ${cross}" >> "/Collider/2023_LLHN_CONCYTEC/cross_section.dat"
 		cd ..
 	done
 done
-cp ${1}/scripts_2208/data/cross_section.dat /Collider/2023_LLHN_CONCYTEC/
+#cp ${1}/scripts_2208/data/cross_section.dat /Collider/2023_LLHN_CONCYTEC/

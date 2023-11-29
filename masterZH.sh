@@ -3,7 +3,7 @@
 cd 2023_LLHN_CONCYTEC
 $SHELL
 
-x1=10000
+x1=100000
 
 madgraph_folder="/Collider/MG5_aMC_v2_9_11"
 delphes_folder="/Collider/MG5_aMC_v2_9_11/Delphes"
@@ -25,10 +25,10 @@ bash benchsZH.sh "$x1" "$madgraph_folder"
 #bash hepmc_dist.sh "$madgraph_folder" "$destiny_folder"
 bash crossec_distZH.sh "$destiny_folder" "$madgraph_folder"
 
-#source ~/.bashrc
+source ~/.bashrc
 
-#cd ./scripts_2208/
+cd ./scripts_2208/
 #echo $PYTHONPATH
-#bash analysis_master.sh "$x1" "$delphes_folder"  "$destiny_folder"
+bash analysis_master.sh "$x1" "$delphes_folder"  "$destiny_folder"
 
 echo "Done!"

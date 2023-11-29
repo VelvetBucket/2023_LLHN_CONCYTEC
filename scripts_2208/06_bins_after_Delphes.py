@@ -232,7 +232,7 @@ met_bins = [0, 30, 50, np.inf]
 
 origin = f"/Collider/scripts_2208/data/clean/"
 #origin = "/Collider/2023_LLHN_CONCYTEC/"
-destiny = f"./data/matrices/"
+destiny = f"./data/matrices_15/"
 types = ['ZH', 'WH', 'TTH']
 tevs = [13]
 
