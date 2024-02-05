@@ -11,10 +11,12 @@ destiny = f"./cases/"
 met_labels = ['BKG', 'CR', 'SR']
 vround = np.vectorize(round)
 
+colores = {'60':'r','50':'g','40':'b','30':'m'}
 fig, axs = plt.subplots(nrows=5, ncols=2, figsize=(20, 30))
 plt.subplots_adjust(left=None, bottom=0.05, right=None, top=0.95, wspace=None, hspace=0.3)
 
-for input_file in sorted(glob.glob(origin + f"bin_*.json"))[:]:
+
+for input_file in list(reversed(sorted(glob.glob(origin + f"bin_*.json"))))[:]:
 
     ymax_p = []
     ymin_p = []
@@ -36,11 +38,12 @@ for input_file in sorted(glob.glob(origin + f"bin_*.json"))[:]:
         for row in axs:
             row[ix].hist(nbins[:-1],
                          bins=nbins, weights=matrix[ir][:,-1], histtype='step',
-                         stacked=False, label=base_out)
+                         stacked=False, label=base_out, color=colores[re.search(f'MN(.+)_ML', base_out).group(1)])
             row[ix].set_yscale('log')
             row[ix].set_xticks(np.array(range(matrix.shape[1])) + 1)
             row[ix].set_title(f'Dataset {key} ph - bin z {ir + 1}')
             row[ix].legend()
+            row[ix].secondary_yaxis("right")
             ymax_p.append(row[ix].get_ylim()[1])
             ymin_p.append(row[ix].get_ylim()[0])
             ir += 1
